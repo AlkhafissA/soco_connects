@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}Validation HSE - SOCO-CONNECT{% endblock %}
+
+{% block content %}
+<div class="mb-4 d-flex justify-content-between align-items-center">
+    <div>
+        <h3 class="fw-bold text-success">Contrôle de Sécurité (HSE)</h3>
+        <p class="text-muted m-0">{{ dossier.entreprise.nom_entreprise }} | {{ dossier.titre_intervention }}</p>
+    </div>
+    <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-secondary btn-sm">Retour</a>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <!-- Infos Intervention & Plan de Prévention -->
+        <div class="card shadow-sm border-0 mb-4" style="border-radius: 12px;">
+            <div class="card-body">
+                <h5 class="fw-bold mb-3"><i class="bi bi-info-circle text-success"></i> Détails de l'intervention</h5>
+                <p><strong>Description :</strong> {{ dossier.description }}</p>
+                <div class="row mb-3">
+                    <div class="col-md-6"><strong>Zone :</strong> {{ dossier.zone_site }}</div>
+                    <div class="col-md-6"><strong>Dates :</strong> {{ dossier.date_debut.strftime('%d/%m/%Y') }} au {{ dossier.date_fin.strftime('%d/%m/%Y') }}</div>
+                </div>
+                <hr>
+                <h6 class="fw-bold">Plan de Prévention</h6>
+                {% if dossier.fichier_plan_prevention %}
+                    <a href="{{ url_for('main.download_file', filepath=dossier.fichier_plan_prevention) }}" target="_blank" class="btn btn-sm btn-info text-white">
+                        <i class="bi bi-file-pdf"></i> Consulter le Plan de Prévention
+                    </a>
+                {% else %}
+                    <span class="text-danger small"><i class="bi bi-exclamation-triangle"></i> Aucun plan fourni</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Équipe & Habilitations -->
+        <div class="card shadow-sm border-0 mb-4" style="border-radius: 12px;">
+            <div class="card-header bg-white border-bottom p-3">
+                <!-- CORRECTION ICI : dossier.dossier_intervenants -->
+                <h5 class="mb-0 fw-bold"><i class="bi bi-people-fill text-success"></i> Équipe d'intervention ({{ dossier.dossier_intervenants|length }})</h5>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0 align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-3">Nom complet</th>
+                            <th>CNI / Pièce</th>
+                            <th>Habilitations</th>
+                            <th>Statut individuel</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- CORRECTION ICI : Boucle sur la table de liaison -->
+                        {% for liaison in dossier.dossier_intervenants %}
+                        {% set worker = liaison.intervenant %}
+                        <tr>
+                            <td class="ps-3 fw-medium">{{ worker.prenom }} {{ worker.nom }}</td>
+                            <td>
+                                {{ worker.numero_piece }}
+                                {% if worker.fichier_cni %}
+                                    <br><a href="{{ url_for('main.download_file', filepath=worker.fichier_cni) }}" target="_blank" class="badge bg-secondary text-decoration-none">Voir CNI</a>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if worker.hab_travail_hauteur %}<span class="badge bg-primary mb-1">Hauteur</span> {% endif %}
+                                {% if worker.hab_espace_confine %}<span class="badge bg-dark mb-1">Confiné</span> {% endif %}
+                                {% if worker.hab_risque_electrique %}<span class="badge bg-warning text-dark mb-1">Électrique</span> {% endif %}
+                                {% if worker.hab_conduite_engins %}<span class="badge bg-info text-dark mb-1">Engins</span> {% endif %}
+                                {% if worker.hab_incendie %}<span class="badge bg-danger mb-1">Incendie</span> {% endif %}
+                                
+                                {% if worker.fichier_certificats %}
+                                    <br><a href="{{ url_for('main.download_file', filepath=worker.fichier_certificats) }}" target="_blank" class="btn btn-sm btn-outline-success mt-1" style="padding: 0.1rem 0.3rem; font-size: 0.75rem;">Doc. PDF</a>
+                                {% endif %}
+                            </td>
+                            
+                            <!-- NOUVELLE COLONNE : Statut -->
+                            <td>
+                                {% if liaison.statut_hse == 'VALIDE' %}
+                                    <span class="badge bg-success">Validé</span>
+                                {% elif liaison.statut_hse == 'REJETE' %}
+                                    <span class="badge bg-danger">Rejeté</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">En attente</span>
+                                {% endif %}
+                            </td>
+
+                            <!-- NOUVELLE COLONNE : Actions individuelles -->
+                            <td>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    {% if liaison.statut_hse != 'VALIDE' %}
+                                        <form action="{{ url_for('main.valider_intervenant', dossier_id=dossier.id, intervenant_id=worker.id) }}" method="POST" class="d-inline">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                            <button type="submit" class="btn btn-outline-success" title="Autoriser"><i class="bi bi-check-lg"></i></button>
+                                        </form>
+                                    {% endif %}
+                                    
+                                    {% if liaison.statut_hse != 'REJETE' %}
+                                        <form action="{{ url_for('main.rejeter_intervenant', dossier_id=dossier.id, intervenant_id=worker.id) }}" method="POST" class="d-inline">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                            <button type="submit" class="btn btn-outline-danger" title="Refuser"><i class="bi bi-x-lg"></i></button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center p-4 text-muted">Aucun intervenant rattaché à ce dossier.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Panneau de validation globale -->
+    <div class="col-lg-4">
+        <div class="card shadow-sm border-0" style="border-radius: 12px; background-color: #f8f9fa;">
+            <div class="card-body">
+                <h5 class="fw-bold mb-3 text-success">Décision HSE Globale</h5>
+                <p class="small text-muted mb-3">Cette action valide ou rejette le Plan de Prévention dans son ensemble.</p>
+                
+                <form method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Commentaire / Remarques HSE</label>
+                        <textarea name="commentaire" class="form-control" rows="4" placeholder="Obligatoire en cas de rejet..."></textarea>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" name="action" value="valider" class="btn btn-success">
+                            <i class="bi bi-check-circle"></i> Valider le dossier global
+                        </button>
+                        <button type="submit" name="action" value="rejeter" class="btn btn-outline-danger">
+                            <i class="bi bi-x-circle"></i> Rejeter le dossier
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

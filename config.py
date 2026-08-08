@@ -24,10 +24,10 @@ class Config:
     if database_url and database_url.startswith('postgres://'):
         database_url = database_url.replace('postgres://', 'postgresql://', 1)
     
-    SQLALCHEMY_DATABASE_URI = database_url or 'sqlite:///' + os.path.join(basedir, 'mes_marches.db')
+    SQLALCHEMY_DATABASE_URI = database_url or 'sqlite:///' + os.path.join(basedir, 'soco_connect.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-    # Paramètres MCAT (aussi obligatoires)
+    # Paramètres soco_connect (aussi obligatoires)
     MOT_DE_PASSE_PAR_DEFAUT = os.environ.get('MOT_DE_PASSE_PAR_DEFAUT')
     CLE_DE_VERROUILLAGE = os.environ.get('CLE_DE_VERROUILLAGE')
     
@@ -45,6 +45,6 @@ class Config:
     # Empêche le cookie d'être envoyé sur d'autres sites (protège contre les attaques CSRF)
     SESSION_COOKIE_SAMESITE = 'Lax' 
     
-    # Note : Si tu mets l'appli ligne avec HTTPS (cadenas vert), 
-    # décommente la ligne ci-dessous pour obliger le cookie à passer uniquement par une connexion sécurisée.
+    # Note : Si on  mets l'appli en ligne avec HTTPS (cadenas vert), 
+    # on décommente la ligne ci-dessous pour obliger le cookie à passer uniquement par une connexion sécurisée.
     # SESSION_COOKIE_SECURE = True

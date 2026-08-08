@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}Portail Sécurité - SOCO-CONNECT{% endblock %}
+
+{% block content %}
+<div class="mb-4 d-flex justify-content-between align-items-center">
+    <div>
+        <h3 class="fw-bold text-primary">
+            <i class="bi bi-door-open-fill"></i> Contrôle d'Accès - Portail
+        </h3>
+        <p class="text-muted mb-0">Interventions autorisées pour le : <strong>{{ aujourd_hui.strftime('%d/%m/%Y') }}</strong></p>
+    </div>
+</div>
+
+<div class="row">
+    {% for dossier in dossiers %}
+        <div class="col-12 mb-4">
+            <div class="card shadow-sm border-0" style="border-radius: 12px; border-left: 5px solid #0d6efd;">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center p-3">
+                    <div>
+                        <h5 class="mb-0 fw-bold">{{ dossier.entreprise.nom_entreprise if dossier.entreprise else dossier.prestataire.nom_entreprise }}</h5>
+                        <small class="text-muted">Intervention : {{ dossier.titre_intervention }} | Zone : {{ dossier.zone_site }}</small>
+                    </div>
+                    <span class="badge bg-success fs-6"><i class="bi bi-check-circle"></i> Dossier Validé</span>
+                </div>
+                
+                <div class="card-body p-0">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-4">Nom de l'intervenant</th>
+                                <th>N° Pièce (CNI)</th>
+                                <th>Statut Autorisation</th>
+                                <th class="text-end pe-4">Pointage (Entrée/Sortie)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for liaison in dossier.dossier_intervenants %}
+                                <!-- L'HSE a validé, mais la guérite vérifie la date du jour ! -->
+                                {% if liaison.statut_hse == 'VALIDE' %}
+                                    {% set worker = liaison.intervenant %}
+                                    
+                                    <!-- 🔐 VÉRIFICATION DES DATES (Les fameux feux verts) -->
+                                    {% set cni_valide = worker.date_expiration_cni and worker.date_expiration_cni >= aujourd_hui %}
+                                    {% set hab_valide = worker.date_expiration_certificats and worker.date_expiration_certificats >= aujourd_hui %}
+                                    {% set acces_autorise = cni_valide and hab_valide %}
+
+                                    <tr>
+                                        <td class="ps-4 fw-bold fs-5">{{ worker.prenom }} {{ worker.nom }}</td>
+                                        <td class="font-monospace text-muted">{{ worker.numero_piece }}</td>
+                                        
+                                        <!-- COLONNE STATUT -->
+                                        <td>
+                                            {% if acces_autorise %}
+                                                <span class="badge bg-success p-2"><i class="bi bi-shield-check"></i> Autorisé</span>
+                                            {% else %}
+                                                <div class="badge bg-danger p-2 mb-1"><i class="bi bi-shield-x"></i> Bloqué</div>
+                                                <ul class="text-danger small mb-0 ps-3">
+                                                    {% if not cni_valide %}<li>CNI expirée</li>{% endif %}
+                                                    {% if not hab_valide %}<li>Habilitations expirées</li>{% endif %}
+                                                </ul>
+                                            {% endif %}
+                                        </td>
+                                        
+                                        <!-- COLONNE POINTAGE -->
+                                        <td class="text-end pe-4">
+                                            {% if worker.id in intervenants_sur_site %}
+                                                <!-- EN SORTIE -->
+                                                <span class="badge bg-warning text-dark me-2">
+                                                    <i class="bi bi-geo-alt-fill"></i> Actuellement sur site
+                                                </span>
+                                                <form action="{{ url_for('main.pointer_sortie', dossier_id=dossier.id, intervenant_id=worker.id) }}" method="POST" class="d-inline">
+                                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                                    <button type="submit" class="btn btn-sm btn-danger fw-bold">
+                                                        <i class="bi bi-box-arrow-right"></i> Sortie
+                                                    </button>
+                                                </form>
+
+                                            {% else %}
+                                                <!-- EN ENTRÉE -->
+                                                <span class="badge bg-secondary me-2">
+                                                    <i class="bi bi-house-door"></i> Absent
+                                                </span>
+                                                
+                                                {% if acces_autorise %}
+                                                    <!-- Bouton d'entrée normal -->
+                                                    <form action="{{ url_for('main.pointer_entree', dossier_id=dossier.id, intervenant_id=worker.id) }}" method="POST" class="d-inline">
+                                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                                        <button type="submit" class="btn btn-sm btn-primary fw-bold">
+                                                            <i class="bi bi-box-arrow-in-right"></i> Entrée
+                                                        </button>
+                                                    </form>
+                                                {% else %}
+                                                    <!-- Bouton bloqué -->
+                                                    <button class="btn btn-sm btn-outline-danger fw-bold" disabled title="Documents expirés">
+                                                        <i class="bi bi-x-circle"></i> Accès Refusé
+                                                    </button>
+                                                {% endif %}
+                                            {% endif %}
+                                        </td>
+                                        
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="col-12 text-center py-5">
+            <div class="display-1 text-muted mb-3"><i class="bi bi-shield-lock"></i></div>
+            <h5 class="text-muted">Aucune intervention validée n'est prévue pour aujourd'hui.</h5>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

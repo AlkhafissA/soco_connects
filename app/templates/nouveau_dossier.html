@@ -1,0 +1,128 @@
+{% extends "base.html" %} 
+
+{% block title %}Nouveau Dossier d'Intervention - SOCO-CONNECT{% endblock %} 
+
+{% block extra_css %}
+<style>
+  .card-form {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+    border-top: 5px solid var(--accent-color);
+  }
+  .form-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .form-control, .form-select {
+    border-radius: 8px;
+    padding: 10px 15px;
+    border: 1px solid var(--border-color);
+    background-color: #f8f9fa;
+  }
+  .form-control:focus, .form-select:focus {
+    background-color: #ffffff;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(27, 42, 71, 0.1);
+  }
+  .upload-box {
+    background-color: #e9ecef;
+    border: 2px dashed #adb5bd;
+    border-radius: 8px;
+    padding: 15px;
+    text-align: center;
+    transition: all 0.3s ease;
+  }
+  .btn-submit {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 600;
+    padding: 12px 20px;
+    border-radius: 8px;
+    transition: all 0.3s;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    
+    <div class="mb-4 d-flex justify-content-between align-items-center">
+      <div>
+        <h3 class="fw-bold m-0" style="color: var(--primary-color);">Nouvelle Intervention</h3>
+        <p class="text-muted m-0">Déclarez vos travaux et soumettez votre plan de prévention.</p>
+      </div>
+      <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i> Retour</a>
+    </div>
+
+    <div class="card card-form">
+      <div class="card-body p-4 p-md-5">
+        
+        <form method="POST" action="{{ url_for('main.nouveau_dossier') }}" enctype="multipart/form-data">
+          {{ form.hidden_tag() }}
+
+          <h5 class="fw-bold mb-3 border-bottom pb-2" style="color: var(--primary-color);">Détails de l'intervention</h5>
+
+          <div class="mb-3">
+            {{ form.titre_intervention.label(class="form-label") }}
+            {{ form.titre_intervention(class="form-control", placeholder="Ex: Maintenance préventive du broyeur 3") }}
+          </div>
+
+          <div class="mb-3">
+            {{ form.zone_site.label(class="form-label") }}
+            {{ form.zone_site(class="form-control", placeholder="Ex: Usine Rufisque - Atelier Mécanique") }}
+          </div>
+
+          <div class="mb-4">
+            {{ form.description.label(class="form-label") }}
+            {{ form.description(class="form-control", rows="3", placeholder="Décrivez brièvement les travaux à réaliser...") }}
+          </div>
+
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              {{ form.date_debut.label(class="form-label") }}
+              {{ form.date_debut(class="form-control", type="date") }}
+            </div>
+            <div class="col-md-6">
+              {{ form.date_fin.label(class="form-label") }}
+              {{ form.date_fin(class="form-control", type="date") }}
+            </div>
+          </div>
+
+          <h5 class="fw-bold mt-4 mb-3 border-bottom pb-2" style="color: var(--primary-color);">Sécurité (HSE)</h5>
+
+          <div class="upload-box mb-4">
+            <div class="mb-2" style="font-size: 1.5rem; color: var(--primary-color);"><i class="bi bi-shield-exclamation"></i></div>
+            {{ form.fichier_plan_prevention.label(class="form-label mb-2") }}
+            {{ form.fichier_plan_prevention(class="form-control form-control-sm mx-auto", style="max-width: 400px;", accept=".pdf") }}
+            <small class="text-muted d-block mt-2">Le plan de prévention signé est obligatoire pour que le service HSE valide le dossier.</small>
+          </div>
+
+          <div class="d-grid">
+            <button type="submit" class="btn btn-submit btn-lg shadow-sm">
+              <i class="bi bi-save me-2"></i> Créer le dossier
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% block scripts %}
+<script>
+  document.querySelector("form").addEventListener("submit", function (e) {
+    const btn = this.querySelector('button[type="submit"]');
+    if(btn) {
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Création en cours...';
+    }
+  });
+</script>
+{% endblock %}
+{% endblock %}

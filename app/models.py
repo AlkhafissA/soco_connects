@@ -1,235 +1,225 @@
-import json
-from datetime import datetime
+from typing import Optional, List
+from datetime import datetime, timezone
+from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy import String, Integer, DateTime, Boolean, ForeignKey, Text
 from flask_login import UserMixin
-from app.extensions import db
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from app import db
 
-class User(UserMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(100), unique=True, nullable=False)
-    password_hash = db.Column(db.String(200), nullable=False)
-    # 🛡️ SÉCURITÉ : Le rôle par défaut est désormais un simple utilisateur (ou 'invite').
-    # Seul un SuperAdmin pourra changer ce rôle manuellement.
-    role = db.Column(db.String(20), default='Stagiaire')
-
-class Historique(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    utilisateur = db.Column(db.String(100))
-    action = db.Column(db.String(200))
-    # j'utilise db.Text pour accepter une longueur illimitée de caractères
-    cible = db.Column(db.Text) 
-    date_action = db.Column(db.DateTime, default=datetime.utcnow)
-
-class Candidat(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    nom_entreprise = db.Column(db.String(100), nullable=False)
-    adresse = db.Column(db.String(200))
-    ville = db.Column(db.String(100))
-    ninea = db.Column(db.String(50))
-    position = db.Column(db.String(100))
-    nom_proprietaire = db.Column(db.String(100))
-    genre = db.Column(db.String(20))
-    email = db.Column(db.String(120), nullable=False)
-    telephone = db.Column(db.String(20))
-    statut = db.Column(db.String(50), default="En attente")
-    date_enregistrement = db.Column(db.DateTime, default=datetime.utcnow)
-    ref_interne = db.Column(db.String(100))        
-    # AVANT : date_signature_agrement = db.Column(db.String(100))
-    
-    # APRÈS 🟢 :
-    date_signature_agrement = db.Column(db.Date, nullable=True)
-    ref_lettre_candidat = db.Column(db.String(100))     
-    titre_signataire = db.Column(db.String(150), default="Le Directeur")
-    # 🌟 NOUVEAU : On ajoute la colonne pour stocker le nom de la direction
-    nom_direction = db.Column(db.String(255), default="DIRECTION DE L'ADMINISTRATION GENERALE ET DE L'EQUIPEMENT") 
-    rc = db.Column(db.String(100))               # <-- NOUVEAU
-    compte_bancaire = db.Column(db.String(200))  # <-- NOUVEAU
-    fichier_scanne = db.Column(db.String(255), nullable=True) # <-- AJOUTONS CECI
-    contrats = db.relationship('Contrat', backref='parent_candidat', cascade="all, delete-orphan")
-
-class Cotation(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    objet = db.Column(db.Text, nullable=False)
-    # 🌟 NOUVEAU CHAMP : Pour stocker le nom de la direction (PRM)
-    nom_direction = db.Column(db.String(255), default="DIRECTION DE L'ADMINISTRATION GENERALE ET DE L'EQUIPEMENT")
-    
-    # --- CHAMPS POUR LA LETTRE D'INFORMATION ---
-    num_ordre_lettre = db.Column(db.String(50))
-    ref_service_lettre = db.Column(db.String(100), default="MCAT/SG/DAGE/ms")
-    immatriculation = db.Column(db.String(100))
-    direction_beneficiaire = db.Column(db.String(200))
-    direction_retrait_pv = db.Column(db.String(200))
-    date_lettre = db.Column(db.DateTime, default=datetime.utcnow)
-    signataire_titre = db.Column(db.String(100), default="Le Directeur")
-    # ----------------------------------------------------
-
-    lieu = db.Column(db.String(200))
-    date_limite = db.Column(db.DateTime)
-    date_ouverture = db.Column(db.DateTime)
-    date_attribution = db.Column(db.DateTime)
-    # 🌟 NOUVEAUX CHAMPS : Dates d'établissement des PV
-    date_pv_ouverture = db.Column(db.DateTime, nullable=True)
-    date_pv_attribution = db.Column(db.DateTime, nullable=True)
-    president = db.Column(db.String(100))
-    membre1 = db.Column(db.String(100))
-    membre2 = db.Column(db.String(100))
-    offres = db.relationship('Offre', backref='cotation', lazy=True, cascade="all, delete-orphan")
-    fichier_scanne = db.Column(db.String(255), nullable=True) # <-- AJOUTE CECI
-    plis_retard = db.Column(db.String(255), default="NÉANT")
-
-class Offre(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    cotation_id = db.Column(db.Integer, db.ForeignKey('cotation.id'), nullable=False)
-    nom_candidat = db.Column(db.String(100))
-    montant = db.Column(db.Integer)
-    fichier_scanne = db.Column(db.String(255), nullable=True) # <-- AJOUTE CECI
-
-class Bordereau(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    direction_name = db.Column(db.String(100))
-    numero = db.Column(db.String(50))
-    service_ref = db.Column(db.String(50))
-    date_signature = db.Column(db.Date)
-    # ✅ On AJOUTE CETTE LIGNE POUR SAUVEGARDER LE DESTINATAIRE
-    destinataire = db.Column(db.String(255), default="Monsieur le Coordonnateur de la Cellule de Passation des Marchés Publics")
-    observations = db.Column(db.String(200))
-    # ❌ AVANT : dossiers_data = db.Column(db.Text)
-    # 🟢 APRÈS :
-    dossiers_data = db.Column(db.JSON) 
-    fichier_scanne = db.Column(db.String(255), nullable=True)
-
-    def get_dossiers(self):
-        # 🟢 APRÈS : Plus besoin de json.loads() !
-        if self.dossiers_data:
-            return self.dossiers_data
-        return []
-    fichier_scanne = db.Column(db.String(255), nullable=True) # <-- AJOUTE CECI
-
-class LettreNotification(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    # 🟢 APRÈS : On ajoute index=True
-    immatriculation = db.Column(db.String(100), index=True)
-    objet_marche = db.Column(db.Text)
-    entreprise = db.Column(db.String(200)) # L'entreprise gagnante
-    date_creation = db.Column(db.DateTime, default=datetime.utcnow)
-    
-    # Ce champ va stocker TOUTES les données du formulaire sous forme de texte (JSON)
-    # pour pouvoir régénérer le PDF exactement pareil plus tard.
-    #form_data = db.Column(db.Text)
-    # ❌ AVANT : form_data = db.Column(db.Text)
-    # 🟢 APRÈS :
-    form_data = db.Column(db.JSON)
-    fichier_scanne = db.Column(db.String(255), nullable=True) # <-- ON AJOUTE CECI
-
-
-class ProcesVerbal(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    # 🟢 APRÈS : On ajoute index=True
-    numero_drp = db.Column(db.String(100), index=True) # Ex: S_DAGE_373
-    objet = db.Column(db.Text)
-    entreprise = db.Column(db.String(200)) # L'entreprise déclarée moins disante
-    date_creation = db.Column(db.DateTime, default=datetime.utcnow)
-    # ❌ AVANT : form_data = db.Column(db.Text)
-    # 🟢 APRÈS :
-    form_data = db.Column(db.JSON)
-    fichier_scanne = db.Column(db.String(255), nullable=True) # <--ON AJOUTE CECI
-
-
-class LettreInvitation(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    immatriculation = db.Column(db.String(100), index=True) # Ex: S_DAGE_483
-    objet_marche = db.Column(db.Text)
-    date_creation = db.Column(db.DateTime, default=datetime.utcnow)
-    
-    # Ce champ va stocker TOUTES les données du formulaire sous forme de texte (JSON)
-    # Y compris la liste des prestataires choisis, les heures de dépôt, etc.
-    form_data = db.Column(db.JSON) # 🟢 Modifié
-    fichier_scanne = db.Column(db.String(255), nullable=True) # <-- AJOUTE CECI
-
-
-class Contrat(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    
-    # LIAISON AVEC LA TABLE CANDIDAT
-    candidat_id = db.Column(db.Integer, db.ForeignKey('candidat.id'), nullable=False)
-    
-
-    # INFORMATIONS DU MARCHÉ
-    objet_marche = db.Column(db.Text, nullable=False)
-    gestion_annee = db.Column(db.String(10), default="2025")
-    montant_chiffres = db.Column(db.String(50))
-    montant_lettres = db.Column(db.Text)
-    
-    # INFORMATIONS BUDGÉTAIRES
-    financement = db.Column(db.String(200), default="Budget de Fonctionnement")
-    imputation = db.Column(db.Text)
-    programme = db.Column(db.String(50))
-    comptable_assignataire = db.Column(db.String(200), default="Payeur Général du Trésor (PGT)")
-    
-    # INFOS DE L'ENTREPRISE (au moment de la signature)
-    rc_candidat = db.Column(db.String(100))
-    compte_bancaire = db.Column(db.String(200))
-    
-    numero = db.Column(db.String(50), nullable=True)
-    ref_service = db.Column(db.String(100), nullable=True)
-    date_lettre = db.Column(db.String(50), nullable=True)
-    
-    date_creation = db.Column(db.DateTime, default=datetime.utcnow)
-    fichier_scanne = db.Column(db.String(255), nullable=True) # <-- ON AJOUTE CECI
-    immatriculation = db.Column(db.String(100)) # <-- AJOUT POUR L'ARCHIVAGE
-    # 👇ON AJOUTE CETTE LIGNE POUR SAUVEGARDER LE VOCABLE ! 👇
-    vocable = db.Column(db.String(50), default="Prestataire")
-    # 👇 NOUVELLE COLONNE À AJOUTER 👇
-    sigle_direction = db.Column(db.String(50), default="DAGE")
-
-class LettreInformation(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    immatriculation = db.Column(db.String(100), index=True)
-    objet_marche = db.Column(db.Text)
-    date_creation = db.Column(db.DateTime, default=datetime.utcnow) # <-- ON AJOUTE CECI
-    form_data = db.Column(db.JSON) # On stocke tout le JSON (dates, prestataires, etc.)
-    fichier_scanne = db.Column(db.String(255), nullable=True)
-
-class ArchiveDocument(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    reference = db.Column(db.String(100), nullable=False, index=True) # Ex: S_DAGE_198
-    type_document = db.Column(db.String(50), nullable=False) # Ex: 'Bordereau', 'Lettre Invitation', 'Contrat'
-    nom_fichier = db.Column(db.String(255), nullable=False) # Le nom du PDF sauvegardé
-    date_ajout = db.Column(db.DateTime, default=datetime.utcnow) # Date d'upload
-    statut = db.Column(db.String(20), nullable=False, server_default='Ancien')
+# ==========================================
+# 1. SÉCURITÉ ET UTILISATEURS
+# ==========================================
 
 class LoginAttempt(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    ip_address = db.Column(db.String(45), nullable=False, unique=True)
-    attempts = db.Column(db.Integer, default=0)
-    last_attempt = db.Column(db.DateTime, default=datetime.utcnow)
-    is_blocked = db.Column(db.Boolean, default=False)
+    __tablename__ = 'login_attempt'
+    
+    id: Mapped[int] = mapped_column(primary_key=True)
+    ip_address: Mapped[str] = mapped_column(String(45), nullable=False, unique=True)
+    attempts: Mapped[int] = mapped_column(Integer, default=0)
+    last_attempt: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
+    is_blocked: Mapped[bool] = mapped_column(Boolean, default=False)
 
 
-# journal d'audit plus fin que 'Historique' : on y enregistre
-# les connexions, blocages automatiques, honeypot, etc.
-class LogAction(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    action = db.Column(db.String(200), nullable=False)
-    details = db.Column(db.Text, nullable=True)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+class User(db.Model, UserMixin): 
+    __tablename__ = 'users'
+    
+    id: Mapped[int] = mapped_column(primary_key=True)
+    username: Mapped[str] = mapped_column(String(64), index=True, unique=True, nullable=False)
+    email: Mapped[str] = mapped_column(String(120), index=True, unique=True, nullable=False)
+    password_hash: Mapped[Optional[str]] = mapped_column(String(256))
+    
+    # Rôles : PRESTATAIRE, ACHATS, HSE, PORTAIL, ADMIN, SUPERADMIN
+    role: Mapped[str] = mapped_column(String(20), nullable=False, default='PRESTATAIRE')
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
 
-class DocumentLibre(db.Model):
+    prestataire: Mapped[Optional["Prestataire"]] = relationship(back_populates="gestionnaire")
+
+    def set_password(self, password: str) -> None:
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password: str) -> bool:
+        if not self.password_hash:
+            return False
+        return check_password_hash(self.password_hash, password)
+
+    # ON AJOUTE CETTE LIGNE :
+    must_change_password = db.Column(db.Boolean, default=False)
+
+
+# ==========================================
+# 2. ENTREPRISES PRESTATAIRES (Volet Achats)
+# ==========================================
+
+class Prestataire(db.Model):
+    __tablename__ = 'prestataires'
+    
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey('users.id'), nullable=False)
+    
+    nom_entreprise: Mapped[str] = mapped_column(String(150), nullable=False)
+    ninea: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
+    registre_commerce: Mapped[str] = mapped_column(String(50), nullable=False)
+    domaine_activite: Mapped[str] = mapped_column(String(100), nullable=False) 
+    
+    fichier_ninea: Mapped[Optional[str]] = mapped_column(String(255))
+    fichier_rc: Mapped[Optional[str]] = mapped_column(String(255))
+    
+    gestionnaire: Mapped["User"] = relationship(back_populates="prestataire")
+    intervenants: Mapped[List["Intervenant"]] = relationship(back_populates="entreprise", cascade="all, delete-orphan")
+    dossiers: Mapped[List["DossierIntervention"]] = relationship(back_populates="entreprise", cascade="all, delete-orphan")
+
+
+# ==========================================
+# 3. INTERVENANTS ET ASSOCIATION DOSSIER
+# ==========================================
+
+class DossierIntervenant(db.Model):
+    """
+    Table de liaison entre un dossier et un intervenant.
+    Permet la validation HSE INDIVIDUELLE de chaque intervenant.
+    """
+    __tablename__ = 'dossier_intervenants'
+    
+    dossier_id: Mapped[int] = mapped_column(ForeignKey('dossiers_intervention.id'), primary_key=True)
+    intervenant_id: Mapped[int] = mapped_column(ForeignKey('intervenants.id'), primary_key=True)
+    
+    # Statut individuel de l'intervenant pour ce dossier : EN_ATTENTE, VALIDE, REJETE
+    statut_hse: Mapped[str] = mapped_column(String(20), default='EN_ATTENTE')
+    commentaire_hse: Mapped[Optional[str]] = mapped_column(Text)
+    date_validation_hse: Mapped[Optional[datetime]] = mapped_column(DateTime)
+    
+    dossier: Mapped["DossierIntervention"] = relationship(back_populates="dossier_intervenants")
+    intervenant: Mapped["Intervenant"] = relationship(back_populates="dossier_intervenants")
+
+
+class Intervenant(db.Model):
+    __tablename__ = 'intervenants'
+    
+    id: Mapped[int] = mapped_column(primary_key=True)
+    prestataire_id: Mapped[int] = mapped_column(ForeignKey('prestataires.id'), nullable=False)
+    
+    nom: Mapped[str] = mapped_column(String(100), nullable=False)
+    prenom: Mapped[str] = mapped_column(String(100), nullable=False)
+    numero_piece: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
+
+    fichier_cni: Mapped[Optional[str]] = mapped_column(String(255))  # <-- AJOUTER CETTE LIGNE
+    fichier_certificats: Mapped[Optional[str]] = mapped_column(String(255))
+    
+    # Habilitations spécifiques
+    hab_travail_hauteur: Mapped[bool] = mapped_column(Boolean, default=False)
+    hab_espace_confine: Mapped[bool] = mapped_column(Boolean, default=False)
+    hab_risque_electrique: Mapped[bool] = mapped_column(Boolean, default=False)
+    hab_conduite_engins: Mapped[bool] = mapped_column(Boolean, default=False)
+    hab_incendie: Mapped[bool] = mapped_column(Boolean, default=False)
+    
+    fichier_certificats: Mapped[Optional[str]] = mapped_column(String(255))
+
+    entreprise: Mapped["Prestataire"] = relationship(back_populates="intervenants")
+    dossier_intervenants: Mapped[List["DossierIntervenant"]] = relationship(back_populates="intervenant", cascade="all, delete-orphan")
+    acces_registre: Mapped[List["RegistreAcces"]] = relationship(back_populates="intervenant")
+
+    # NOUVELLES COLONNES : Dates d'expiration
+    date_expiration_cni = db.Column(db.Date, nullable=True)
+    date_expiration_certificats = db.Column(db.Date, nullable=True)
+
+
+# ==========================================
+# 4. DEMANDES D'ACCÈS / DOSSIERS
+# ==========================================
+
+class DossierIntervention(db.Model):
+    __tablename__ = 'dossiers_intervention'
+    
+    id: Mapped[int] = mapped_column(primary_key=True)
+    prestataire_id: Mapped[int] = mapped_column(ForeignKey('prestataires.id'), nullable=False)
+    
+    titre_intervention: Mapped[str] = mapped_column(String(200), nullable=False)
+    zone_site: Mapped[str] = mapped_column(String(100), nullable=False) 
+    description: Mapped[str] = mapped_column(Text, nullable=False)
+    date_debut: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    date_fin: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    
+    fichier_assurance: Mapped[Optional[str]] = mapped_column(String(255))         
+    fichier_plan_prevention: Mapped[Optional[str]] = mapped_column(String(255))   
+    
+    entreprise: Mapped["Prestataire"] = relationship(back_populates="dossiers")
+    dossier_intervenants: Mapped[List["DossierIntervenant"]] = relationship(back_populates="dossier", cascade="all, delete-orphan")
+
+    # Validation ACHATS (Globale pour l'entreprise)
+    statut_achats: Mapped[str] = mapped_column(String(20), default='EN_ATTENTE')
+    commentaire_achats: Mapped[Optional[str]] = mapped_column(Text)
+    date_validation_achats: Mapped[Optional[datetime]] = mapped_column(DateTime)
+    valide_par_achats_id: Mapped[Optional[int]] = mapped_column(ForeignKey('users.id'))
+    
+    # Validation HSE (Globale pour le Plan de Prévention / Zone)
+    statut_hse: Mapped[str] = mapped_column(String(20), default='EN_ATTENTE') 
+    commentaire_hse: Mapped[Optional[str]] = mapped_column(Text)
+    date_validation_hse: Mapped[Optional[datetime]] = mapped_column(DateTime)
+    valide_par_hse_id: Mapped[Optional[int]] = mapped_column(ForeignKey('users.id'))
+    
+    date_creation: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+    @property
+    def statut_global(self) -> str:
+        if self.statut_achats == 'VALIDE' and self.statut_hse == 'VALIDE':
+            return 'AUTORISE'
+        elif self.statut_achats == 'REJETE' or self.statut_hse == 'REJETE':
+            return 'REFUSE'
+        return 'EN_ATTENTE'
+
+
+# ==========================================
+# 5. REGISTRE PORTAIL (Contrôle d'Accès Physique)
+# ==========================================
+
+class RegistreAcces(db.Model):
+    """
+    Historique des Entrées et Sorties physiques scannées ou enregistrées au portail.
+    """
+    __tablename__ = 'registre_acces'
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    intervenant_id: Mapped[int] = mapped_column(ForeignKey('intervenants.id'), nullable=False)
+    dossier_id: Mapped[int] = mapped_column(ForeignKey('dossiers_intervention.id'), nullable=False)
+    agent_portail_id: Mapped[int] = mapped_column(ForeignKey('users.id'), nullable=False)
+
+    type_mouvement: Mapped[str] = mapped_column(String(10), nullable=False)  # 'ENTREE' ou 'SORTIE'
+    horodatage: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+    intervenant: Mapped["Intervenant"] = relationship(back_populates="acces_registre")
+    dossier: Mapped["DossierIntervention"] = relationship()
+    agent_portail: Mapped["User"] = relationship()
+
+
+   
+
+class ActionLog(db.Model):
+    __tablename__ = 'action_logs'
+    
     id = db.Column(db.Integer, primary_key=True)
-    immatriculation = db.Column(db.String(100), nullable=False, index=True) # L'identifiant clé du marché
-    titre = db.Column(db.String(150), nullable=False) # Ex: "Avenant Numéro 1"
-    nom_fichier = db.Column(db.String(255), nullable=False)
-    chemin_fichier = db.Column(db.String(255), nullable=False)
-    date_ajout = db.Column(db.DateTime, default=datetime.utcnow)
-class DocumentEtape(db.Model):
-    
-    #Table unique pour stocker tous les nouveaux documents réglementaires scannés 
-    #nécessaires à la clôture (DRP & Cotation).
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True) # Celui qui a fait l'action
+    action = db.Column(db.String(100), nullable=False) # Ex: "CONNEXION", "VALIDATION_HSE"
+    description = db.Column(db.String(255)) # Ex: "A validé la demande n°15"
+    timestamp = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+
+    # Relation avec l'utilisateur pour récupérer son nom facilement
+    user = db.relationship('User', backref='logs')
+
+
+class DemandeAcces(db.Model):
+    __tablename__ = 'demandes_acces'
+
     id = db.Column(db.Integer, primary_key=True)
-    immatriculation = db.Column(db.String(100), nullable=False, index=True) 
-    
-    # C'est ici qu'on précisera si c'est un "PV d'ouverture", "Facture définitive", etc.
-    type_etape = db.Column(db.String(100), nullable=False) 
-    
-    nom_fichier = db.Column(db.String(255), nullable=False)
-    chemin_fichier = db.Column(db.String(255), nullable=False)
-    date_ajout = db.Column(db.DateTime, default=datetime.utcnow)
+    nom_entreprise = db.Column(db.String(150), nullable=False)
+    nom_contact = db.Column(db.String(100), nullable=False)
+    email_contact = db.Column(db.String(120), nullable=False)
+    telephone = db.Column(db.String(20), nullable=False)
+    motif = db.Column(db.Text, nullable=True) # Ex: "Sous-traitant pour le projet X"
+        
+    # Statut de la demande : 'En attente', 'Validée', 'Rejetée'
+    statut = db.Column(db.String(20), default='En attente') 
+    date_demande = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f"<DemandeAcces {self.nom_entreprise} - {self.statut}>"

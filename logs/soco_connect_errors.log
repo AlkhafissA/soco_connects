@@ -1,0 +1,917 @@
+2026-08-05 23:38:09,926 ERROR: Exception on /dossier/1 [POST] [in /home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py:875]
+Traceback (most recent call last):
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/sqlalchemy/engine/default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/pymysql/cursors.py", line 153, in execute
+    result = self._query(query)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/pymysql/cursors.py", line 322, in _query
+    conn.query(q)
+    ~~~~~~~~~~^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/pymysql/connections.py", line 575, in query
+    self._affected_rows = self._read_query_result(unbuffered=unbuffered)
+                          ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/pymysql/connections.py", line 826, in _read_query_result
+    result.read()
+    ~~~~~~~~~~~^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/pymysql/connections.py", line 1203, in read
+    first_packet = self.connection._read_packet()
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/pymysql/connections.py", line 782, in _read_packet
+    packet.raise_for_error()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/pymysql/protocol.py", line 219, in raise_for_error
+    err.raise_mysql_exception(self._data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/pymysql/err.py", line 150, in raise_mysql_exception
+    raise errorclass(errno, errval)
+pymysql.err.IntegrityError: (1062, "Duplicate entry '1910200001487' for key 'intervenants.numero_piece'")
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask_login/utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/app/routes.py", line 45, in decorated_function
+    return f(*args, **kwargs)
+  File "/home/alkhafissa/soco_connect/app/routes.py", line 491, in detail_dossier
+    db.session.flush() # Force la base à attribuer un ID à nouvel_intervenant
+    ~~~~~~~~~~~~~~~~^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/sqlalchemy/orm/scoping.py", line 924, in flush
+    return self._proxied.flush(objects=objects)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/sqlalchemy/orm/session.py", line 4331, in flush
+    self._flush(objects)
+    ~~~~~~~~~~~^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/sqlalchemy/orm/session.py", line 4466, in _flush
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/sqlalchemy/util/langhelpers.py", line 224, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/sqlalchemy/orm/session.py", line 4427, in _flush
+    flush_context.execute()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/sqlalchemy/orm/unitofwork.py", line 466, in execute
+    rec.execute(self)
+    ~~~~~~~~~~~^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/sqlalchemy/orm/unitofwork.py", line 642, in execute
+    util.preloaded.orm_persistence.save_obj(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.mapper,
+        ^^^^^^^^^^^^
+        uow.states_for_mapper_hierarchy(self.mapper, False, False),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        uow,
+        ^^^^
+    )
+    ^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/sqlalchemy/orm/persistence.py", line 93, in save_obj
+    _emit_insert_statements(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        base_mapper,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        insert,
+        ^^^^^^^
+    )
+    ^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/sqlalchemy/orm/persistence.py", line 1233, in _emit_insert_statements
+    result = connection.execute(
+        statement,
+        params,
+        execution_options=execution_options,
+    )
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py", line 1419, in execute
+    return meth(
+        self,
+        distilled_parameters,
+        execution_options or NO_OPTIONS,
+    )
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/sqlalchemy/sql/elements.py", line 527, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self, distilled_params, execution_options
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py", line 1641, in _execute_clauseelement
+    ret = self._execute_context(
+        dialect,
+    ...<8 lines>...
+        cache_hit=cache_hit,
+    )
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py", line 2363, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/sqlalchemy/engine/default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/pymysql/cursors.py", line 153, in execute
+    result = self._query(query)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/pymysql/cursors.py", line 322, in _query
+    conn.query(q)
+    ~~~~~~~~~~^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/pymysql/connections.py", line 575, in query
+    self._affected_rows = self._read_query_result(unbuffered=unbuffered)
+                          ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/pymysql/connections.py", line 826, in _read_query_result
+    result.read()
+    ~~~~~~~~~~~^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/pymysql/connections.py", line 1203, in read
+    first_packet = self.connection._read_packet()
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/pymysql/connections.py", line 782, in _read_packet
+    packet.raise_for_error()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/pymysql/protocol.py", line 219, in raise_for_error
+    err.raise_mysql_exception(self._data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/pymysql/err.py", line 150, in raise_mysql_exception
+    raise errorclass(errno, errval)
+sqlalchemy.exc.IntegrityError: (pymysql.err.IntegrityError) (1062, "Duplicate entry '1910200001487' for key 'intervenants.numero_piece'")
+[SQL: INSERT INTO intervenants (prestataire_id, nom, prenom, numero_piece, fichier_cni, fichier_certificats, hab_travail_hauteur, hab_espace_confine, hab_risque_electrique, hab_conduite_engins, hab_incendie, date_expiration_cni, date_expiration_certificats) VALUES (%(prestataire_id)s, %(nom)s, %(prenom)s, %(numero_piece)s, %(fichier_cni)s, %(fichier_certificats)s, %(hab_travail_hauteur)s, %(hab_espace_confine)s, %(hab_risque_electrique)s, %(hab_conduite_engins)s, %(hab_incendie)s, %(date_expiration_cni)s, %(date_expiration_certificats)s)]
+[parameters: {'prestataire_id': 1, 'nom': 'diouf', 'prenom': 'alioune', 'numero_piece': '1910200001487', 'fichier_cni': '/home/alkhafissa/soco_connect/app/secure_uploads/cni_intervenants/20260805233809_Agrement_1_vrai_de_chez_vrai.pdf', 'fichier_certificats': '/home/alkhafissa/soco_connect/app/secure_uploads/habilitations_intervenants/20260805233809_Agrement_2_Salon_Beaute.pdf', 'hab_travail_hauteur': 1, 'hab_espace_confine': 0, 'hab_risque_electrique': 0, 'hab_conduite_engins': 0, 'hab_incendie': 0, 'date_expiration_cni': datetime.date(2027, 12, 15), 'date_expiration_certificats': datetime.date(2028, 1, 10)}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2026-08-05 23:47:30,555 ERROR: Exception on /dashboard [GET] [in /home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py:875]
+Traceback (most recent call last):
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask_login/utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/app/routes.py", line 187, in dashboard
+    return render_template(
+        'dashboard_hse.html',
+    ...<2 lines>...
+        date_actuelle=date_actuelle
+    )
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/templating.py", line 150, in render_template
+    return _render(app, template, context)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/templating.py", line 131, in _render
+    rv = template.render(context)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/jinja2/environment.py", line 1295, in render
+    self.environment.handle_exception()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/home/alkhafissa/soco_connect/app/templates/dashboard_hse.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "/home/alkhafissa/soco_connect/app/templates/base.html", line 186, in top-level template code
+    {% block content %}{% endblock %}
+    ^^^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/app/templates/dashboard_hse.html", line 94, in block 'content'
+    {% if intervenant.date_expiration_cni and intervenant.date_expiration_cni <= (date_actuelle + timedelta(days=30)) %}
+    ^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/jinja2/utils.py", line 92, in from_obj
+    if hasattr(obj, "jinja_pass_arg"):
+       ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+jinja2.exceptions.UndefinedError: 'timedelta' is undefined
+2026-08-06 13:07:02,976 ERROR: Exception on /dossier/1/intervenant/5/modifier [GET] [in /home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py:875]
+Traceback (most recent call last):
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask_login/utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/app/routes.py", line 811, in modifier_intervenant
+    return render_template('modifier_intervenant.html', form=form, intervenant=intervenant, dossier=dossier)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/templating.py", line 150, in render_template
+    return _render(app, template, context)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/templating.py", line 131, in _render
+    rv = template.render(context)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/jinja2/environment.py", line 1295, in render
+    self.environment.handle_exception()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/home/alkhafissa/soco_connect/app/templates/modifier_intervenant.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "/home/alkhafissa/soco_connect/app/templates/base.html", line 186, in top-level template code
+    {% block content %}{% endblock %}
+    ^^^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/app/templates/modifier_intervenant.html", line 11, in block 'content'
+    <a href="{{ url_for('main.detail_dossier', id=dossier.id) }}" class="btn btn-outline-secondary btn-sm">
+    ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 1121, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 1110, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+        endpoint,
+    ...<3 lines>...
+        force_external=_external,
+    )
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/werkzeug/routing/map.py", line 924, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'main.detail_dossier' with values ['id']. Did you forget to specify values ['dossier_id']?
+2026-08-06 13:13:31,106 ERROR: Exception on /dossier/1/intervenant/12/modifier [POST] [in /home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py:875]
+Traceback (most recent call last):
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask_login/utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/app/routes.py", line 809, in modifier_intervenant
+    return redirect(url_for('main.detail_dossier', id=dossier.id))
+                    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/helpers.py", line 239, in url_for
+    return current_app.url_for(
+           ~~~~~~~~~~~~~~~~~~~^
+        endpoint,
+        ^^^^^^^^^
+    ...<4 lines>...
+        **values,
+        ^^^^^^^^^
+    )
+    ^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 1121, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 1110, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+        endpoint,
+    ...<3 lines>...
+        force_external=_external,
+    )
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/werkzeug/routing/map.py", line 924, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'main.detail_dossier' with values ['id']. Did you forget to specify values ['dossier_id']?
+2026-08-06 13:18:58,677 ERROR: Exception on /dossier/1/intervenant/12/modifier [POST] [in /home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py:875]
+Traceback (most recent call last):
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask_login/utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/app/routes.py", line 809, in modifier_intervenant
+    return redirect(url_for('main.detail_dossier', id=dossier.id))
+                    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/helpers.py", line 239, in url_for
+    return current_app.url_for(
+           ~~~~~~~~~~~~~~~~~~~^
+        endpoint,
+        ^^^^^^^^^
+    ...<4 lines>...
+        **values,
+        ^^^^^^^^^
+    )
+    ^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 1121, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 1110, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+        endpoint,
+    ...<3 lines>...
+        force_external=_external,
+    )
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/werkzeug/routing/map.py", line 924, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'main.detail_dossier' with values ['id']. Did you forget to specify values ['dossier_id']?
+2026-08-06 13:32:41,174 ERROR: Exception on /dossier/1 [GET] [in /home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py:875]
+Traceback (most recent call last):
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask_login/utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/app/routes.py", line 45, in decorated_function
+    return f(*args, **kwargs)
+  File "/home/alkhafissa/soco_connect/app/routes.py", line 513, in detail_dossier
+    return render_template('detail_dossier.html', dossier=dossier, form=form, liaisons=liaisons)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/templating.py", line 149, in render_template
+    template = app.jinja_env.get_or_select_template(template_name_or_list)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/jinja2/environment.py", line 1087, in get_or_select_template
+    return self.get_template(template_name_or_list, parent, globals)
+           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/jinja2/environment.py", line 1016, in get_template
+    return self._load_template(name, globals)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/jinja2/environment.py", line 975, in _load_template
+    template = self.loader.load(self, name, self.make_globals(globals))
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/jinja2/loaders.py", line 126, in load
+    source, filename, uptodate = self.get_source(environment, name)
+                                 ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/templating.py", line 65, in get_source
+    return self._get_source_fast(environment, template)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/templating.py", line 99, in _get_source_fast
+    raise TemplateNotFound(template)
+jinja2.exceptions.TemplateNotFound: detail_dossier.html
+2026-08-06 13:32:48,669 ERROR: Exception on /dossier/1 [GET] [in /home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py:875]
+Traceback (most recent call last):
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask_login/utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/app/routes.py", line 45, in decorated_function
+    return f(*args, **kwargs)
+  File "/home/alkhafissa/soco_connect/app/routes.py", line 513, in detail_dossier
+    return render_template('detail_dossier.html', dossier=dossier, form=form, liaisons=liaisons)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/templating.py", line 149, in render_template
+    template = app.jinja_env.get_or_select_template(template_name_or_list)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/jinja2/environment.py", line 1087, in get_or_select_template
+    return self.get_template(template_name_or_list, parent, globals)
+           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/jinja2/environment.py", line 1016, in get_template
+    return self._load_template(name, globals)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/jinja2/environment.py", line 975, in _load_template
+    template = self.loader.load(self, name, self.make_globals(globals))
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/jinja2/loaders.py", line 126, in load
+    source, filename, uptodate = self.get_source(environment, name)
+                                 ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/templating.py", line 65, in get_source
+    return self._get_source_fast(environment, template)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/templating.py", line 99, in _get_source_fast
+    raise TemplateNotFound(template)
+jinja2.exceptions.TemplateNotFound: detail_dossier.html
+2026-08-06 14:54:08,500 ERROR: Exception on /dashboard [GET] [in /home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py:875]
+Traceback (most recent call last):
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask_login/utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/app/routes.py", line 159, in dashboard
+    return render_template(
+        'dashboard_prestataire.html',
+    ...<3 lines>...
+        date_actuelle=date_actuelle
+    )
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/templating.py", line 150, in render_template
+    return _render(app, template, context)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/templating.py", line 131, in _render
+    rv = template.render(context)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/jinja2/environment.py", line 1295, in render
+    self.environment.handle_exception()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/home/alkhafissa/soco_connect/app/templates/dashboard_prestataire.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "/home/alkhafissa/soco_connect/app/templates/base.html", line 186, in top-level template code
+    {% block content %}{% endblock %}
+    ^^^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/app/templates/dashboard_prestataire.html", line 34, in block 'content'
+    {% if intervenant.date_expiration_cni and intervenant.date_expiration_cni <= seuil_alerte_30j %}
+    ^^^^^^^^^
+jinja2.exceptions.UndefinedError: 'seuil_alerte_30j' is undefined
+2026-08-06 14:56:52,112 ERROR: Exception on /dashboard [GET] [in /home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py:875]
+Traceback (most recent call last):
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask_login/utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/app/routes.py", line 159, in dashboard
+    return render_template(
+        'dashboard_prestataire.html',
+    ...<3 lines>...
+        date_actuelle=date_actuelle
+    )
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/templating.py", line 150, in render_template
+    return _render(app, template, context)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/templating.py", line 131, in _render
+    rv = template.render(context)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/jinja2/environment.py", line 1295, in render
+    self.environment.handle_exception()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/home/alkhafissa/soco_connect/app/templates/dashboard_prestataire.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "/home/alkhafissa/soco_connect/app/templates/base.html", line 186, in top-level template code
+    {% block content %}{% endblock %}
+    ^^^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/app/templates/dashboard_prestataire.html", line 34, in block 'content'
+    {% if intervenant.date_expiration_cni and intervenant.date_expiration_cni <= seuil_alerte_30j %}
+    ^^^^^^^^^
+jinja2.exceptions.UndefinedError: 'seuil_alerte_30j' is undefined
+2026-08-06 14:59:06,975 ERROR: Exception on /dashboard [GET] [in /home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py:875]
+Traceback (most recent call last):
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask_login/utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/app/routes.py", line 159, in dashboard
+    return render_template(
+        'dashboard_prestataire.html',
+    ...<3 lines>...
+        date_actuelle=date_actuelle
+    )
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/templating.py", line 150, in render_template
+    return _render(app, template, context)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/templating.py", line 131, in _render
+    rv = template.render(context)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/jinja2/environment.py", line 1295, in render
+    self.environment.handle_exception()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/home/alkhafissa/soco_connect/app/templates/dashboard_prestataire.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "/home/alkhafissa/soco_connect/app/templates/base.html", line 186, in top-level template code
+    {% block content %}{% endblock %}
+    ^^^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/app/templates/dashboard_prestataire.html", line 34, in block 'content'
+    {% if intervenant.date_expiration_cni and intervenant.date_expiration_cni <= seuil_alerte_30j %}
+    ^^^^^^^^^
+jinja2.exceptions.UndefinedError: 'seuil_alerte_30j' is undefined
+2026-08-06 14:59:08,138 ERROR: Exception on /dashboard [GET] [in /home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py:875]
+Traceback (most recent call last):
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask_login/utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/app/routes.py", line 159, in dashboard
+    return render_template(
+        'dashboard_prestataire.html',
+    ...<3 lines>...
+        date_actuelle=date_actuelle
+    )
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/templating.py", line 150, in render_template
+    return _render(app, template, context)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/templating.py", line 131, in _render
+    rv = template.render(context)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/jinja2/environment.py", line 1295, in render
+    self.environment.handle_exception()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/home/alkhafissa/soco_connect/app/templates/dashboard_prestataire.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "/home/alkhafissa/soco_connect/app/templates/base.html", line 186, in top-level template code
+    {% block content %}{% endblock %}
+    ^^^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/app/templates/dashboard_prestataire.html", line 34, in block 'content'
+    {% if intervenant.date_expiration_cni and intervenant.date_expiration_cni <= seuil_alerte_30j %}
+    ^^^^^^^^^
+jinja2.exceptions.UndefinedError: 'seuil_alerte_30j' is undefined
+2026-08-06 14:59:08,562 ERROR: Exception on /dashboard [GET] [in /home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py:875]
+Traceback (most recent call last):
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask_login/utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/app/routes.py", line 159, in dashboard
+    return render_template(
+        'dashboard_prestataire.html',
+    ...<3 lines>...
+        date_actuelle=date_actuelle
+    )
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/templating.py", line 150, in render_template
+    return _render(app, template, context)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/templating.py", line 131, in _render
+    rv = template.render(context)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/jinja2/environment.py", line 1295, in render
+    self.environment.handle_exception()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/home/alkhafissa/soco_connect/app/templates/dashboard_prestataire.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "/home/alkhafissa/soco_connect/app/templates/base.html", line 186, in top-level template code
+    {% block content %}{% endblock %}
+    ^^^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/app/templates/dashboard_prestataire.html", line 34, in block 'content'
+    {% if intervenant.date_expiration_cni and intervenant.date_expiration_cni <= seuil_alerte_30j %}
+    ^^^^^^^^^
+jinja2.exceptions.UndefinedError: 'seuil_alerte_30j' is undefined
+2026-08-06 14:59:08,730 ERROR: Exception on /dashboard [GET] [in /home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py:875]
+Traceback (most recent call last):
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask_login/utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/app/routes.py", line 159, in dashboard
+    return render_template(
+        'dashboard_prestataire.html',
+    ...<3 lines>...
+        date_actuelle=date_actuelle
+    )
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/templating.py", line 150, in render_template
+    return _render(app, template, context)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/templating.py", line 131, in _render
+    rv = template.render(context)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/jinja2/environment.py", line 1295, in render
+    self.environment.handle_exception()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/home/alkhafissa/soco_connect/app/templates/dashboard_prestataire.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "/home/alkhafissa/soco_connect/app/templates/base.html", line 186, in top-level template code
+    {% block content %}{% endblock %}
+    ^^^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/app/templates/dashboard_prestataire.html", line 34, in block 'content'
+    {% if intervenant.date_expiration_cni and intervenant.date_expiration_cni <= seuil_alerte_30j %}
+    ^^^^^^^^^
+jinja2.exceptions.UndefinedError: 'seuil_alerte_30j' is undefined
+2026-08-06 14:59:08,918 ERROR: Exception on /dashboard [GET] [in /home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py:875]
+Traceback (most recent call last):
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask_login/utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/app/routes.py", line 159, in dashboard
+    return render_template(
+        'dashboard_prestataire.html',
+    ...<3 lines>...
+        date_actuelle=date_actuelle
+    )
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/templating.py", line 150, in render_template
+    return _render(app, template, context)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/templating.py", line 131, in _render
+    rv = template.render(context)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/jinja2/environment.py", line 1295, in render
+    self.environment.handle_exception()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/home/alkhafissa/soco_connect/app/templates/dashboard_prestataire.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "/home/alkhafissa/soco_connect/app/templates/base.html", line 186, in top-level template code
+    {% block content %}{% endblock %}
+    ^^^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/app/templates/dashboard_prestataire.html", line 34, in block 'content'
+    {% if intervenant.date_expiration_cni and intervenant.date_expiration_cni <= seuil_alerte_30j %}
+    ^^^^^^^^^
+jinja2.exceptions.UndefinedError: 'seuil_alerte_30j' is undefined
+2026-08-07 00:29:21,381 ERROR: Exception on /dossier/1/intervenant/1/retirer [POST] [in /home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py:875]
+Traceback (most recent call last):
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask_login/utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/app/routes.py", line 787, in retirer_intervenant
+    return redirect(url_for('main.detail_dossier', id=dossier_id))
+                    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/helpers.py", line 239, in url_for
+    return current_app.url_for(
+           ~~~~~~~~~~~~~~~~~~~^
+        endpoint,
+        ^^^^^^^^^
+    ...<4 lines>...
+        **values,
+        ^^^^^^^^^
+    )
+    ^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 1121, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 1110, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+        endpoint,
+    ...<3 lines>...
+        force_external=_external,
+    )
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/werkzeug/routing/map.py", line 924, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'main.detail_dossier' with values ['id']. Did you forget to specify values ['dossier_id']?
+2026-08-07 15:09:33,841 ERROR: Exception on / [GET] [in /home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py:875]
+Traceback (most recent call last):
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/app/routes.py", line 841, in index
+    return render_template('index.html')
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/templating.py", line 150, in render_template
+    return _render(app, template, context)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/templating.py", line 131, in _render
+    rv = template.render(context)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/jinja2/environment.py", line 1295, in render
+    self.environment.handle_exception()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/home/alkhafissa/soco_connect/app/templates/index.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "/home/alkhafissa/soco_connect/app/templates/base.html", line 186, in top-level template code
+    {% block content %}{% endblock %}
+    ^^^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/app/templates/index.html", line 142, in block 'content'
+    <a href="{{ url_for('main.demande_acces') }}" class="btn btn-outline-success fw-bold w-100">
+    ^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 1121, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 1110, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+        endpoint,
+    ...<3 lines>...
+        force_external=_external,
+    )
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/werkzeug/routing/map.py", line 924, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'main.demande_acces'. Did you mean 'main.dossier_achats' instead?
+2026-08-07 15:09:35,351 ERROR: Exception on / [GET] [in /home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py:875]
+Traceback (most recent call last):
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/app/routes.py", line 841, in index
+    return render_template('index.html')
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/templating.py", line 150, in render_template
+    return _render(app, template, context)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/templating.py", line 131, in _render
+    rv = template.render(context)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/jinja2/environment.py", line 1295, in render
+    self.environment.handle_exception()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/home/alkhafissa/soco_connect/app/templates/index.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "/home/alkhafissa/soco_connect/app/templates/base.html", line 186, in top-level template code
+    {% block content %}{% endblock %}
+    ^^^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/app/templates/index.html", line 142, in block 'content'
+    <a href="{{ url_for('main.demande_acces') }}" class="btn btn-outline-success fw-bold w-100">
+    ^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 1121, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 1110, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+        endpoint,
+    ...<3 lines>...
+        force_external=_external,
+    )
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/werkzeug/routing/map.py", line 924, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'main.demande_acces'. Did you mean 'main.dossier_achats' instead?
+2026-08-07 16:48:24,523 ERROR: Exception on /demande/1/action [POST] [in /home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py:875]
+Traceback (most recent call last):
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask_login/utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/app/routes.py", line 45, in decorated_function
+    return f(*args, **kwargs)
+  File "/home/alkhafissa/soco_connect/app/routes.py", line 822, in action_demande
+    nouvel_utilisateur = User(
+        username=demande.nom_entreprise,
+    ...<2 lines>...
+        must_change_password=True  # Bloque l'accès jusqu'au changement de mot de passe
+    )
+  File "<string>", line 4, in __init__
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/sqlalchemy/orm/state.py", line 596, in _initialize_instance
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/sqlalchemy/util/langhelpers.py", line 224, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/sqlalchemy/orm/state.py", line 594, in _initialize_instance
+    manager.original_init(*mixed[1:], **kwargs)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/sqlalchemy/orm/decl_base.py", line 2179, in _declarative_constructor
+    raise TypeError(
+        "%r is an invalid keyword argument for %s" % (k, cls_.__name__)
+    )
+TypeError: 'must_change_password' is an invalid keyword argument for User
+2026-08-07 20:11:38,409 ERROR: Exception on /superadmin/dashboard [GET] [in /home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py:875]
+Traceback (most recent call last):
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask_login/utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/app/routes.py", line 45, in decorated_function
+    return f(*args, **kwargs)
+  File "/home/alkhafissa/soco_connect/app/routes.py", line 769, in dashboard_superadmin
+    return render_template(
+        'superadmin_dashboard.html',
+    ...<2 lines>...
+        demandes=demandes
+    )
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/templating.py", line 150, in render_template
+    return _render(app, template, context)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/templating.py", line 131, in _render
+    rv = template.render(context)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/jinja2/environment.py", line 1295, in render
+    self.environment.handle_exception()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/home/alkhafissa/soco_connect/app/templates/superadmin_dashboard.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "/home/alkhafissa/soco_connect/app/templates/base.html", line 140, in top-level template code
+    <a class="nav-link {% if request.endpoint == 'main.dashboard_achats' %}menu-top-actif{% endif %}" href="{{ url_for('main.dashboard_achats') }}#history">
+    ^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 1121, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 1110, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+        endpoint,
+    ...<3 lines>...
+        force_external=_external,
+    )
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/werkzeug/routing/map.py", line 924, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'main.dashboard_achats'. Did you mean 'main.dashboard' instead?
+2026-08-08 02:19:00,421 ERROR: Exception on /dashboard [GET] [in /home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py:875]
+Traceback (most recent call last):
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask_login/utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/alkhafissa/soco_connect/app/routes.py", line 196, in dashboard
+    return render_template(
+        'dashboard_hse.html',
+    ...<3 lines>...
+        seuil_alerte_30j=seuil_alerte  # <-- CORRECTION ICI AUSSI
+    )
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/templating.py", line 150, in render_template
+    return _render(app, template, context)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/flask/templating.py", line 131, in _render
+    rv = template.render(context)
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/jinja2/environment.py", line 1295, in render
+    self.environment.handle_exception()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/home/alkhafissa/soco_connect/app/templates/dashboard_hse.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "/home/alkhafissa/soco_connect/venv/lib/python3.14/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/home/alkhafissa/soco_connect/app/templates/base.html", line 234, in template
+    {% block scripts %}{% endblock %}
+    ^^^^^^^^^^^^^^^^^^^^^
+jinja2.exceptions.TemplateSyntaxError: Unexpected end of template. Jinja was looking for the following tags: 'elif' or 'else' or 'endif'. The innermost block that needs to be closed is 'if'.

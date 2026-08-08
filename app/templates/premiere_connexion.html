@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Première connexion - SOCO-CONNECT{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-body p-4 p-md-5">
+                    
+                    <!-- En-tête -->
+                    <div class="text-center mb-4">
+                        <div class="d-inline-block bg-success bg-opacity-10 p-3 rounded-circle mb-3">
+                            <i class="bi bi-shield-lock-fill fs-1 text-success"></i>
+                        </div>
+                        <h3 class="fw-bold">Sécurisez votre compte</h3>
+                        <p class="text-muted small">
+                            Ceci est votre première connexion avec une clé provisoire. Veuillez définir un mot de passe personnel pour continuer.
+                        </p>
+                    </div>
+
+                    <!-- Affichage des erreurs (mot de passe trop court, etc.) -->
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                      {% if messages %}
+                        {% for category, message in messages %}
+                            <!-- Si la catégorie est "danger" on affiche en rouge, sinon selon la catégorie -->
+                            <div class="alert alert-{{ category if category != 'message' else 'warning' }} py-2 text-center small fw-bold">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                      {% endif %}
+                    {% endwith %}
+
+                    <!-- Formulaire -->
+                    <form action="{{ url_for('main.premiere_connexion') }}" method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">NOUVEAU MOT DE PASSE</label>
+                            <input type="password" name="nouveau_mdp" class="form-control form-control-lg bg-light" placeholder="••••••••" required>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label fw-bold small text-muted">CONFIRMER LE MOT DE PASSE</label>
+                            <input type="password" name="confirm_mdp" class="form-control form-control-lg bg-light" placeholder="••••••••" required>
+                            <div class="form-text small text-muted">
+                                <i class="bi bi-info-circle"></i> Le mot de passe doit contenir au moins 8 caractères.
+                            </div>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success btn-lg fw-bold">
+                                Enregistrer et continuer <i class="bi bi-arrow-right ms-1"></i>
+                            </button>
+                        </div>
+                    </form>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

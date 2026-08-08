@@ -6,7 +6,7 @@
     {% if csrf_token %}
     <meta name="csrf-token" content="{{ csrf_token() }}" />
     {% endif %}
-    <title>{% block title %}MCAT{% endblock %}</title>
+    <title>{% block title %}SOCO-CONNECT{% endblock %}</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
@@ -14,9 +14,12 @@
 
     <style>
       :root {
-        --primary-color: #003366;
-        --secondary-bg: #e3e8ee;
+        /* Couleurs officielles SOCOCIM */
+        --primary-color: #007A33; /* Vert principal SOCOCIM */
+        --primary-dark: #004619;  /* Vert foncé SOCOCIM */
+        --secondary-bg: #f0f2f5;
         --border-color: #d0d7de;
+        --accent-color: #ff9800; /* Orange chantier (se marie parfaitement avec le vert) */
       }
 
       body {
@@ -27,21 +30,23 @@
         padding-bottom: 50px;
       }
 
-      /* Ajout de la classe btn-white */
       .btn-white {
         background-color: #ffffff;
-        color: #344767;
+        color: var(--primary-dark);
         border-color: var(--border-color);
       }
       .btn-white:hover {
         background-color: var(--secondary-bg);
       }
-      /* NAVBAR GLOBALE */
+      
+      /* NAVBAR GLOBALE (Bande en haut) */
       .navbar {
-        background-color: var(--primary-color);
+        /* Application d'un dégradé aux couleurs de la SOCOCIM */
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
         padding: 15px 0;
       }
+      
       .navbar-brand {
         font-weight: 700;
         letter-spacing: 1px;
@@ -65,18 +70,18 @@
       /* ✨ EFFETS MODERNES POUR LES MENUS ACTIFS ✨ */
       .nav-link.menu-top-actif {
         background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.15) 100%);
-        border-bottom: 3px solid #ffcc00 !important;
+        border-bottom: 3px solid var(--accent-color) !important;
         color: #ffffff !important;
         font-weight: 700;
         transform: translateY(-2px);
       }
 
       .menu-lateral-actif {
-        background: linear-gradient(90deg, rgba(13, 110, 253, 0.12) 0%, rgba(255, 255, 255, 0) 100%) !important;
-        border-left: 4px solid #0d6efd !important;
-        color: #0d6efd !important;
+        background: linear-gradient(90deg, rgba(255, 152, 0, 0.12) 0%, rgba(255, 255, 255, 0) 100%) !important;
+        border-left: 4px solid var(--accent-color) !important;
+        color: var(--primary-color) !important;
         font-weight: 800 !important;
-        box-shadow: inset 4px 0px 10px rgba(13, 110, 253, 0.05);
+        box-shadow: inset 4px 0px 10px rgba(255, 152, 0, 0.05);
         transition: all 0.3s ease-in-out;
       }
       .menu-lateral-actif:hover {
@@ -89,14 +94,20 @@
   <body>
     <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
       <div class="container-fluid px-4">
-        <a class="navbar-brand d-flex align-items-center" href="{{ url_for('main.tableau_de_bord') }}">
-          <span style="font-size: 1.5rem; margin-right: 10px">🏛️</span>
+        <a class="navbar-brand d-flex align-items-center" href="{{ url_for('main.dashboard') }}">
+          <span style="font-size: 1.5rem; margin-right: 10px">🏭</span>
           <div style="line-height: 1">
-            <div class="fw-bold">MCAT</div>
+            <div class="fw-bold">SOCO-CONNECT</div>
             <div class="small text-white-50 d-none d-md-block" style="font-size: 0.7em">
-              {% if current_user.is_authenticated %} {% if current_user.role == 'superadmin' %} PORTAIL SUPER ADMIN {% elif current_user.role ==
-              'admin' %} PORTAIL ADMIN {% elif current_user.role == 'agent' %} PORTAIL AGENT {% elif current_user.role == 'stagiaire' %} PORTAIL
-              STAGIAIRE {% else %} PORTAIL UTILISATEUR {% endif %} {% else %} PORTAIL MCAT {% endif %}
+              {% if current_user.is_authenticated %} 
+                {% if current_user.role == 'SUPERADMIN' %} CONTRÔLE SUPER ADMIN 
+                {% elif current_user.role == 'ACHATS' %} SERVICE ACHATS 
+                {% elif current_user.role == 'HSE' %} SERVICE HSE 
+                {% elif current_user.role == 'PORTAIL' %} AGENT POSTE DE GARDE 
+                {% else %} ESPACE SOUS-TRAITANT {% endif %} 
+              {% else %} 
+                PORTAIL INDUSTRIEL 
+              {% endif %}
             </div>
           </div>
         </a>
@@ -107,160 +118,129 @@
 
         <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
           <ul class="navbar-nav">
+            <!-- Toujours visible : Tableau de bord -->
             <li class="nav-item">
-              <a
-                class="nav-link {% if request.endpoint in ['main.tableau_de_bord', 'main.afficher_formulaire', 'main.sauvegarder'] %}menu-top-actif{% else %}active{% endif %}"
-                href="{{ url_for('main.tableau_de_bord') }}"
-              >
+              <a class="nav-link {% if request.endpoint == 'main.dashboard' %}menu-top-actif{% endif %}" href="{{ url_for('main.dashboard') }}">
                 ACCUEIL
               </a>
             </li>
+
+            <!-- Visible pour Prestataires et Admins -->
+            {% if current_user.is_authenticated and current_user.role in ['PRESTATAIRE', ''] %}
             <li class="nav-item">
-              <a
-                class="nav-link {% if request.endpoint in ['main.liste_cotations', 'main.nouvelle_cotation', 'main.modifier_cotation'] %}menu-top-actif{% endif %}"
-                href="{{ url_for('main.liste_cotations') }}"
-                >COTATIONS</a
-              >
-            </li>
-            <li class="nav-item">
-              <a
-                class="nav-link {% if request.endpoint in ['main.drps', 'main.liste_bordereaux', 'main.creer_lettre_invitation', 'main.liste_notifications', 'main.lettres_information', 'main.liste_pv', 'main.creer_contrat'] %}menu-top-actif{% endif %}"
-                href="{{ url_for('main.drps') }}"
-                >DRP</a
-              >
-            </li>
-            <li class="nav-item">
-              <a
-                class="nav-link {% if request.endpoint == 'main.page_suivi_dossiers' %}menu-top-actif{% endif %}"
-                href="{{ url_for('main.page_suivi_dossiers') }}"
-              >
-                ⏱️ SUIVI DES MARCHÉS
+              <a class="nav-link {% if request.endpoint == 'main.enrolement' %}menu-top-actif{% endif %}" href="{{ url_for('main.enrolement') }}">
+                MON DOSSIER
               </a>
             </li>
+            {% endif %}
+            <!-- Visible pour le service Achats et Admins -->
+            {% if current_user.is_authenticated and current_user.role in ['', ''] %}
             <li class="nav-item">
-              <a
-                class="nav-link {% if request.endpoint == 'main.page_archives' %}menu-top-actif{% endif %}"
-                href="{{ url_for('main.page_archives') }}"
-              >
-                🗄️ ARCHIVES GLOBALES
+              {% if current_user.role == 'SUPERADMIN' %}
+                  <!-- Lien pour le Super Admin (vers sa page admin avec l'onglet #history) -->
+                  <a class="nav-link {% if request.endpoint == 'main.dashboard_superadmin' %}menu-top-actif{% endif %}" href="{{ url_for('main.dashboard_superadmin') }}#history">
+                    VALIDATION ACHATS
+                  </a>
+              {% else %}
+                  <!-- Lien pour le service Achats (vers son tableau de bord avec l'onglet #history) -->
+                  <a class="nav-link {% if request.endpoint == 'main.dashboard' %}menu-top-actif{% endif %}" href="{{ url_for('main.dashboard') }}#history">
+                    VALIDATION ACHATS
+                  </a>
+              {% endif %}
+            </li>
+            {% endif %}
+            <!-- Visible pour le service HSE et Admins -->
+            {% if current_user.is_authenticated and current_user.role in ['', ''] %}
+            <li class="nav-item">
+              {% if current_user.role == 'SUPERADMIN' %}
+                  <!-- Lien pour le Super Admin (vers sa page admin avec l'onglet #history-hse) -->
+                  <a class="nav-link {% if request.endpoint == 'main.dashboard_superadmin' %}menu-top-actif{% endif %}" href="{{ url_for('main.dashboard_superadmin') }}#history-hse">
+                    VALIDATION HSE
+                  </a>
+              {% else %}
+                  <!-- Lien pour le service HSE (vers son tableau de bord avec l'onglet #history-hse) -->
+                  <a class="nav-link {% if request.endpoint == 'main.dashboard' %}menu-top-actif{% endif %}" href="{{ url_for('main.dashboard') }}#history-hse">
+                    VALIDATION HSE
+                  </a>
+              {% endif %}
+            </li>
+            {% endif %}
+
+            <!-- Visible pour la Sécurité et Admins -->
+            {% if current_user.is_authenticated and current_user.role in ['PORTAIL', 'SUPERADMIN'] %}
+            <li class="nav-item">
+              <a href="{{ url_for('main.controles_portail') }}" class="nav-link">
+                🛡️ CONTRÔLE ACCÈS
               </a>
             </li>
+            {% endif %}
           </ul>
         </div>
 
-        <div class="d-flex align-items-center">
-          <button
-            class="btn btn-outline-light btn-sm rounded-pill px-3 fw-bold"
-            type="button"
-            data-bs-toggle="offcanvas"
-            data-bs-target="#menuLateralRapide"
-          >
-            ☰ Menu
-          </button>
+       <div class="d-flex align-items-center">
+          {% if current_user.is_authenticated %}
+          <a href="{{ url_for('main.logout') }}" class="btn btn-danger btn-sm rounded-pill px-3 fw-bold shadow-sm transition">
+            <i class="bi bi-box-arrow-right me-1"></i> Déconnexion
+          </a>
+          {% endif %}
         </div>
       </div>
     </nav>
 
     <main>
       <div class="container mt-4">
-        {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %} {% for category, message in messages %}
-        <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm" role="alert">
-          {% if category == 'success' %}✅{% elif category == 'danger' %}⚠️{% elif category == 'warning' %}🔔{% else %}ℹ️{% endif %}
-          <strong>{{ message }}</strong>
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-        {% endfor %} {% endif %} {% endwith %}
+        {% with messages = get_flashed_messages(with_categories=true) %} 
+          {% if messages %} 
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm" role="alert">
+              {% if category == 'success' %}✅{% elif category == 'danger' %}⚠️{% elif category == 'warning' %}🔔{% else %}ℹ️{% endif %}
+              <strong>{{ message }}</strong>
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %} 
+          {% endif %} 
+        {% endwith %}
       </div>
 
       {% block content %}{% endblock %}
     </main>
 
+    <!-- MENU LATÉRAL OFFCANVAS -->
     <div class="offcanvas offcanvas-end border-0 shadow-lg" tabindex="-1" id="menuLateralRapide">
-      <div class="offcanvas-header" style="background-color: #003366; color: white">
-        <h5 class="offcanvas-title fw-bold">🧭 Navigation MCAT</h5>
+      <div class="offcanvas-header" style="background-color: var(--primary-color); color: white">
+        <h5 class="offcanvas-title fw-bold">🧭 Navigation Rapide</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
       </div>
 
       <div class="offcanvas-body d-flex flex-column" style="background-color: #f8f9fa">
-        <p class="text-muted small mb-4">Accédez rapidement à tous vos modules :</p>
+        <p class="text-muted small mb-4">Modules SOCO-CONNECT :</p>
         <div class="d-grid gap-3">
-          <a
-            href="{{ url_for('main.tableau_de_bord') }}"
-            class="btn btn-light border shadow-sm text-start fw-bold p-3 {% if request.endpoint in ['main.tableau_de_bord', 'main.afficher_formulaire', 'main.sauvegarder'] %}menu-lateral-actif{% endif %}"
-          >
-            🏆 Agréments
-          </a>
-          <a
-            href="{{ url_for('main.liste_cotations') }}"
-            class="btn btn-light border shadow-sm text-start fw-bold p-3 {% if request.endpoint in ['main.liste_cotations', 'main.nouvelle_cotation', 'main.modifier_cotation'] %}menu-lateral-actif{% endif %}"
-          >
-            💰 Cotations
+          
+          <a href="{{ url_for('main.dashboard') }}" class="btn btn-light border shadow-sm text-start fw-bold p-3 {% if request.endpoint == 'main.dashboard' %}menu-lateral-actif{% endif %}">
+            📊 Tableau de Bord
           </a>
 
-          <button
-            class="btn btn-light border shadow-sm text-start fw-bold p-3 d-flex justify-content-between align-items-center {% if request.endpoint in ['main.drps', 'main.liste_bordereaux', 'main.creer_lettre_invitation', 'main.liste_notifications', 'main.lettres_information', 'main.liste_pv', 'main.creer_contrat'] %}menu-lateral-actif{% endif %}"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#collapseDrp"
-          >
-            <span>📄 Dossiers DRP</span><span style="font-size: 0.8em">▼</span>
-          </button>
-
-          <div
-            class="collapse {% if request.endpoint in ['main.drps', 'main.liste_bordereaux', 'main.creer_lettre_invitation', 'main.liste_notifications', 'main.lettres_information', 'main.liste_pv', 'main.creer_contrat'] %}show{% endif %}"
-            id="collapseDrp"
-          >
-            <div class="d-grid gap-2 ps-3 pe-1 border-start border-primary border-3 ms-2">
-              <a
-                href="{{ url_for('main.drps') }}"
-                class="btn btn-sm btn-white text-start fw-semibold shadow-sm border {% if request.endpoint == 'main.drps' %}menu-lateral-actif{% endif %}"
-                >DRP</a
-              >
-              <a
-                href="{{ url_for('main.liste_bordereaux') }}"
-                class="btn btn-sm btn-white text-start fw-semibold shadow-sm border {% if request.endpoint == 'main.liste_bordereaux' %}menu-lateral-actif{% endif %}"
-                >1. Bordereaux</a
-              >
-              <a
-                href="{{ url_for('main.creer_lettre_invitation') }}"
-                class="btn btn-sm btn-white text-start fw-semibold shadow-sm border {% if request.endpoint == 'main.creer_lettre_invitation' %}menu-lateral-actif{% endif %}"
-                >2. Lettre d'invitation</a
-              >
-              <a
-                href="{{ url_for('main.liste_notifications') }}"
-                class="btn btn-sm btn-white text-start fw-semibold shadow-sm border {% if request.endpoint == 'main.liste_notifications' %}menu-lateral-actif{% endif %}"
-                >3. Lettre de Notification</a
-              >
-              <a
-                href="{{ url_for('main.lettres_information') }}"
-                class="btn btn-sm btn-white text-start fw-semibold shadow-sm border {% if request.endpoint == 'main.lettres_information' %}menu-lateral-actif{% endif %}"
-                >4. Lettre d'Information</a
-              >
-              <a
-                href="{{ url_for('main.liste_pv') }}"
-                class="btn btn-sm btn-white text-start fw-semibold shadow-sm border {% if request.endpoint == 'main.liste_pv' %}menu-lateral-actif{% endif %}"
-                >5. Procès Verbal (PV)</a
-              >
-              <a
-                href="{{ url_for('main.creer_contrat') }}"
-                class="btn btn-sm btn-white text-start fw-semibold shadow-sm border {% if request.endpoint == 'main.creer_contrat' %}menu-lateral-actif{% endif %}"
-                >6. Contrat</a
-              >
-            </div>
-          </div>
-
-          <a
-            href="{{ url_for('main.page_suivi_dossiers') }}"
-            class="btn btn-warning shadow-sm text-start fw-bold p-3 text-dark border-0 {% if request.endpoint == 'main.page_suivi_dossiers' %}menu-lateral-actif{% endif %}"
-            >⏱️ Suivi des Marchés</a
-          >
-          <a
-            href="{{ url_for('main.page_archives') }}"
-            class="btn btn-light border shadow-sm text-start fw-bold p-3 {% if request.endpoint == 'main.page_archives' %}menu-lateral-actif{% endif %}"
-          >
-            🗄️ Archives Globales
+          {% if current_user.is_authenticated and current_user.role in ['PRESTATAIRE', 'SUPERADMIN'] %}
+          <a href="{{ url_for('main.enrolement') }}" class="btn btn-light border shadow-sm text-start fw-bold p-3 {% if request.endpoint == 'main.enrolement' %}menu-lateral-actif{% endif %}">
+            📝 Soumettre un dossier
           </a>
+          {% endif %}
+
+          {% if current_user.is_authenticated and current_user.role in ['ACHATS', 'HSE', 'SUPERADMIN'] %}
+          <a href="#" class="btn btn-light border shadow-sm text-start fw-bold p-3">
+            🔍 Revue des Sous-traitants
+          </a>
+          <a href="#" class="btn btn-light border shadow-sm text-start fw-bold p-3">
+            📑 Générer un Contrat (NDA)
+          </a>
+          {% endif %}
+
+          <a href="#" class="btn btn-light border shadow-sm text-start fw-bold p-3">
+            🗄️ Registre d'Audit
+          </a>
+          
         </div>
+        
         <div class="mt-auto pt-4">
           <hr />
           <a href="{{ url_for('main.logout') }}" class="btn btn-danger w-100 fw-bold shadow-sm p-3"> 🚪 Déconnexion </a>
@@ -274,7 +254,6 @@
       const csrfTokenTag = document.querySelector('meta[name="csrf-token"]');
       if (csrfTokenTag) {
         const csrfToken = csrfTokenTag.getAttribute("content");
-        // On Ajoute automatiquement le token à toutes les requêtes 'fetch'
         window.csrfFetchOptions = {
           headers: {
             "X-CSRFToken": csrfToken,

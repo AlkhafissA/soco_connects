@@ -12,8 +12,7 @@ csrf = CSRFProtect()
 
 def create_app(config_class=Config):
     app = Flask(__name__)
-    # 🛡️ Toutes mes sécurités de cookies (HTTPOnly, SameSite...) sont 
-    # maintenant chargées proprement et automatiquement depuis config.py ici :
+    # 🛡️ Sécurités de cookies chargées depuis config.py :
     app.config.from_object(config_class)
 
     # Durée de vie de la session
@@ -61,7 +60,7 @@ def create_app(config_class=Config):
     def file_too_large(error):
         return render_template('errors/413.html'), 413
     
-   # --- INITIALISATION BASE DE DONNÉES ---
+    # --- INITIALISATION BASE DE DONNÉES ---
     with app.app_context():
         from app import models 
         from sqlalchemy.exc import ProgrammingError, OperationalError
@@ -82,21 +81,21 @@ def create_app(config_class=Config):
                 "et SUPERADMIN_DEFAULT_PASSWORD doivent être définies dans le fichier .env"
             )
 
-        # On utilise un try...except pour éviter de crasher si la table n'existe pas encore
+        # Try...except pour éviter un crash si les tables n'existent pas encore
         try:
             # Création du compte Admin si absent
             if not models.User.query.filter_by(username='Admin').first():
                 hashed_admin = generate_password_hash(admin_pass, method='pbkdf2:sha256')
-                db.session.add(models.User(username='Admin', password_hash=hashed_admin, role='admin'))
+                db.session.add(models.User(
+                    username='Admin',
+                    email=os.environ.get('ADMIN_EMAIL', 'admin@sococim.sn'),
+                    password_hash=hashed_admin,
+                    role='admin'
+                ))
             
-            # Création du compte SuperAdmin si absent
-            if not models.User.query.filter_by(username='SuperAdmin').first():
-                hashed_super = generate_password_hash(superadmin_pass, method='pbkdf2:sha256')
-                db.session.add(models.User(username='SuperAdmin', password_hash=hashed_super, role='superadmin'))
             
-            db.session.commit()
         except (ProgrammingError, OperationalError):
-            # Les tables ne sont pas encore créées, on ignore l'erreur pour laisser Flask démarrer
+            # Les tables ne sont pas encore créées
             pass
 
     return app

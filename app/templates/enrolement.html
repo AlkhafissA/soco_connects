@@ -1,0 +1,166 @@
+{% extends "base.html" %} 
+
+{% block title %}Enrôlement Prestataire - SOCO-CONNECT{% endblock %} 
+
+{% block extra_css %}
+<style>
+  .card-form {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+    border-top: 5px solid var(--accent-color); /* Ligne orange SOCOCIM en haut */
+  }
+  .form-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .form-control, .form-select {
+    border-radius: 8px;
+    padding: 10px 15px;
+    border: 1px solid var(--border-color);
+    background-color: #f8f9fa;
+  }
+  .form-control:focus, .form-select:focus {
+    background-color: #ffffff;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(27, 42, 71, 0.1);
+  }
+  .upload-box {
+    background-color: #e9ecef;
+    border: 2px dashed #adb5bd;
+    border-radius: 8px;
+    padding: 15px;
+    text-align: center;
+    transition: all 0.3s ease;
+  }
+  .upload-box:hover {
+    border-color: var(--primary-color);
+    background-color: #f1f3f5;
+  }
+  .btn-submit {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 600;
+    padding: 12px 20px;
+    border-radius: 8px;
+    transition: all 0.3s;
+  }
+  .btn-submit:hover {
+    background-color: #0f182b;
+    transform: translateY(-2px);
+    color: white;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8 col-xl-7">
+    
+    <!-- En-tête de la page -->
+    <div class="mb-4 text-center">
+      <h3 class="fw-bold" style="color: var(--primary-color);">Dossier d'Enrôlement</h3>
+      <p class="text-muted">Veuillez renseigner les informations légales de votre entreprise et fournir les pièces justificatives obligatoires (Format PDF uniquement).</p>
+    </div>
+
+    <!-- Carte du formulaire -->
+    <div class="card card-form">
+      <div class="card-body p-4 p-md-5">
+        
+        <!-- L'attribut enctype est OBLIGATOIRE pour l'upload de fichiers -->
+        <form method="POST" action="{{ url_for('main.enrolement') }}" enctype="multipart/form-data">
+          <!-- Protection CSRF générée par WTForms -->
+          {{ form.hidden_tag() }}
+
+          <h5 class="fw-bold mb-3 border-bottom pb-2" style="color: var(--primary-color);">Informations Générales</h5>
+
+          <div class="mb-4">
+            {{ form.nom_entreprise.label(class="form-label") }}
+            {{ form.nom_entreprise(class="form-control", placeholder="Ex: SOCOCIM Services S.A") }}
+            {% for error in form.nom_entreprise.errors %}
+              <div class="text-danger small mt-1 fw-bold"><i class="bi bi-exclamation-circle"></i> {{ error }}</div>
+            {% endfor %}
+          </div>
+
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              {{ form.ninea.label(class="form-label") }}
+              {{ form.ninea(class="form-control", placeholder="Ex: 123456789") }}
+              {% for error in form.ninea.errors %}
+                <div class="text-danger small mt-1 fw-bold"><i class="bi bi-exclamation-circle"></i> {{ error }}</div>
+              {% endfor %}
+            </div>
+            <div class="col-md-6">
+              {{ form.registre_commerce.label(class="form-label") }}
+              {{ form.registre_commerce(class="form-control", placeholder="Ex: SN-DKR-2023-B-1234") }}
+              {% for error in form.registre_commerce.errors %}
+                <div class="text-danger small mt-1 fw-bold"><i class="bi bi-exclamation-circle"></i> {{ error }}</div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="mb-4">
+            {{ form.domaine_activite.label(class="form-label") }}
+            {{ form.domaine_activite(class="form-control", placeholder="Ex: BTP, Maintenance industrielle, Fournitures...") }}
+            {% for error in form.domaine_activite.errors %}
+              <div class="text-danger small mt-1 fw-bold"><i class="bi bi-exclamation-circle"></i> {{ error }}</div>
+            {% endfor %}
+          </div>
+
+          <h5 class="fw-bold mt-5 mb-3 border-bottom pb-2" style="color: var(--primary-color);">Pièces Jointes Obligatoires</h5>
+          <div class="alert alert-info small shadow-sm border-0 bg-opacity-10 text-primary">
+            <i class="bi bi-shield-check"></i> Mesure de sécurité : Seuls les fichiers au format <strong>.PDF</strong> sont acceptés. Nos systèmes vérifient l'intégrité binaire des fichiers soumis.
+          </div>
+
+          <div class="row g-4 mb-5">
+            <div class="col-md-6">
+              <div class="upload-box">
+                <div class="mb-2" style="font-size: 1.5rem; color: var(--primary-color);"><i class="bi bi-file-earmark-pdf"></i></div>
+                {{ form.fichier_ninea.label(class="form-label mb-2") }}
+                {{ form.fichier_ninea(class="form-control form-control-sm", accept=".pdf") }}
+                {% for error in form.fichier_ninea.errors %}
+                  <div class="text-danger small mt-1 fw-bold"><i class="bi bi-exclamation-circle"></i> {{ error }}</div>
+                {% endfor %}
+              </div>
+            </div>
+            
+            <div class="col-md-6">
+              <div class="upload-box">
+                <div class="mb-2" style="font-size: 1.5rem; color: var(--primary-color);"><i class="bi bi-file-earmark-pdf"></i></div>
+                {{ form.fichier_rc.label(class="form-label mb-2") }}
+                {{ form.fichier_rc(class="form-control form-control-sm", accept=".pdf") }}
+                {% for error in form.fichier_rc.errors %}
+                  <div class="text-danger small mt-1 fw-bold"><i class="bi bi-exclamation-circle"></i> {{ error }}</div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+
+          <div class="d-grid">
+            <button type="submit" class="btn btn-submit btn-lg shadow-sm">
+              <i class="bi bi-send me-2"></i> Soumettre mon dossier pour validation
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% block scripts %}
+<script>
+  // Script optionnel : Activation du bouton lors de la soumission pour éviter les doubles clics
+  document.querySelector("form").addEventListener("submit", function (e) {
+    const btn = this.querySelector('button[type="submit"]');
+    if(btn) {
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Envoi en cours...';
+    }
+  });
+</script>
+{% endblock %}
+{% endblock %}

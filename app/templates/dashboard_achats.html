@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard Achats - SOCO-CONNECT{% endblock %}
+
+{% block content %}
+{# 1. CALCUL DES COMPTEURS POUR LES BADGES ACHATS #}
+{% set pending_list = dossiers | selectattr('statut_achats', 'equalto', 'EN_ATTENTE') | list %}
+{% set history_list = dossiers | rejectattr('statut_achats', 'equalto', 'EN_ATTENTE') | list %}
+
+<style>
+    .nav-pills-container {
+        background-color: #e9ecef;
+        padding: 4px;
+        border-radius: 10px;
+        border: 1px solid #dee2e6;
+    }
+    .nav-pills-achats .nav-link {
+        color: #2b3035 !important;
+        font-weight: 600;
+        border-radius: 8px;
+        padding: 8px 18px;
+        transition: all 0.2s ease-in-out;
+    }
+    .nav-pills-achats .nav-link:hover {
+        background-color: #dbe2e8;
+        color: #000000 !important;
+    }
+    .nav-pills-achats .nav-link.active {
+        background-color: var(--primary-color, #0d6efd) !important;
+        color: #ffffff !important;
+        box-shadow: 0 2px 6px rgba(13, 110, 253, 0.3);
+    }
+    .nav-pills-achats .nav-link .badge {
+        background-color: #495057 !important;
+        color: #ffffff !important;
+    }
+    .nav-pills-achats .nav-link.active .badge {
+        background-color: #ffffff !important;
+        color: var(--primary-color, #0d6efd) !important;
+    }
+</style>
+
+<div class="mb-4">
+    <h3 class="fw-bold" style="color: var(--primary-color);">
+        <i class="bi bi-briefcase"></i> Espace Achats - Validation des Entreprises
+    </h3>
+    <p class="text-muted">Consultez et validez les documents administratifs (NINEA, RC) des prestataires.</p>
+</div>
+
+<!-- Navigation par Boutons Stylisés (Achats) -->
+<div class="d-inline-block mb-4 nav-pills-container">
+    <ul class="nav nav-pills nav-pills-achats" id="achatsTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab">
+                <i class="bi bi-hourglass-split me-1"></i> En attente de validation 
+                <span class="badge ms-1">{{ pending_list|length }}</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab">
+                <i class="bi bi-archive me-1"></i> Historique (Validés / Rejetés) 
+                <span class="badge ms-1">{{ history_list|length }}</span>
+            </button>
+        </li>
+    </ul>
+</div>
+
+<div class="tab-content" id="achatsTabContent">
+    
+    <!-- Onglet 1: DOSSIERS EN ATTENTE -->
+    <div class="tab-pane fade show active" id="pending" role="tabpanel">
+        <div class="card shadow-sm border-0" style="border-radius: 12px;">
+            <div class="card-body p-0">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Date</th>
+                            <th>Entreprise</th>
+                            <th>Intervention</th>
+                            <th>Statut</th>
+                            <th class="text-end pe-4">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for dossier in pending_list %}
+                            <tr>
+                                <td class="ps-4">{{ dossier.date_creation.strftime('%d/%m/%Y %H:%M') }}</td>
+                                <td class="fw-bold">{{ dossier.entreprise.nom_entreprise if dossier.entreprise else dossier.prestataire.nom_entreprise }}</td>
+                                <td>{{ dossier.titre_intervention }}</td>
+                                <td><span class="badge bg-warning text-dark">En attente</span></td>
+                                <td class="text-end pe-4">
+                                    <a href="{{ url_for('main.dossier_achats', dossier_id=dossier.id) }}" class="btn btn-sm btn-primary">
+                                        <i class="bi bi-search"></i> Examiner
+                                    </a>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center p-4 text-muted">Aucun dossier en attente de validation.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Onglet 2: HISTORIQUE DES DOSSIERS -->
+    <div class="tab-pane fade" id="history" role="tabpanel">
+        <div class="card shadow-sm border-0" style="border-radius: 12px;">
+            <div class="card-body p-0">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Date</th>
+                            <th>Entreprise</th>
+                            <th>Intervention</th>
+                            <th>Statut Achats</th>
+                            <th>Commentaire</th>
+                            <th class="text-end pe-4">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for dossier in history_list %}
+                            <tr>
+                                <td class="ps-4">{{ dossier.date_creation.strftime('%d/%m/%Y %H:%M') }}</td>
+                                <td class="fw-bold">{{ dossier.entreprise.nom_entreprise if dossier.entreprise else dossier.prestataire.nom_entreprise }}</td>
+                                <td>{{ dossier.titre_intervention }}</td>
+                                <td>
+                                    {% if dossier.statut_achats == 'VALIDE' %}
+                                        <span class="badge bg-success">Validé</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Rejeté</span>
+                                    {% endif %}
+                                </td>
+                                <td><small class="text-muted">{{ dossier.commentaire_achats or '-' }}</small></td>
+                                <td class="text-end pe-4">
+                                    <a href="{{ url_for('main.dossier_achats', dossier_id=dossier.id) }}" class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-eye"></i> Revoir
+                                    </a>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center p-4 text-muted">Aucun dossier dans l'historique.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

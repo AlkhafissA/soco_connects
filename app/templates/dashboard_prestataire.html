@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}Mon Tableau de Bord - SOCO-CONNECT{% endblock %}
+
+{% block content %}
+<!-- Ligne d'en-tête (Titre à gauche, Bouton à droite) -->
+<div class="row mb-4 align-items-center">
+    <div class="col-md-8">
+        <h2 class="fw-bold" style="color: var(--primary-color);">Bienvenue, {{ prestataire.nom_entreprise }}</h2>
+        <p class="text-muted">NINEA: {{ prestataire.ninea }} | Domaine: {{ prestataire.domaine_activite }}</p>
+    </div>
+
+    <div class="col-md-4 text-md-end">
+        <a href="{{ url_for('main.nouveau_dossier') }}" class="btn btn-primary shadow-sm" style="background-color: var(--accent-color); border: none;">
+            <i class="bi bi-plus-circle me-2"></i> Nouvelle Intervention
+        </a>
+    </div>
+</div>
+
+<!-- WIDGET ALERTE D'EXPIRATION (FILTRÉ PAR DOCUMENT) -->
+{% if alertes %}
+<div class="alert alert-warning shadow-sm border-warning mb-4" role="alert">
+    <h5 class="alert-heading text-danger fw-bold">
+        <i class="bi bi-exclamation-triangle-fill"></i> Action requise : Documents arrivant à échéance
+    </h5>
+    <p class="mb-2">Les documents de sécurité pour les intervenants suivants expirent dans moins de 30 jours (ou sont déjà expirés). <strong>Leur accès au site sera automatiquement bloqué à la date d'échéance.</strong></p>
+    <hr>
+    <ul class="mb-0">
+        {% for intervenant in alertes %}
+            <li>
+                <strong>{{ intervenant.prenom }} {{ intervenant.nom }}</strong> : 
+                
+                <!-- Affiche la CNI UNIQUEMENT si elle expire dans <= 30 jours ou est déjà expirée -->
+                {% if intervenant.date_expiration_cni and intervenant.date_expiration_cni <= seuil_alerte_30j %}
+                    <span class="{% if intervenant.date_expiration_cni < date_actuelle %}text-danger fw-bold{% else %}text-warning text-dark{% endif %} me-2">
+                        CNI (Expire le {{ intervenant.date_expiration_cni.strftime('%d/%m/%Y') }})
+                    </span>
+                {% endif %}
+                
+                <!-- Affiche les Habilitations UNIQUEMENT si elles expirent dans <= 30 jours ou sont déjà expirées -->
+                {% if intervenant.date_expiration_certificats and intervenant.date_expiration_certificats <= seuil_alerte_30j %}
+                    <span class="{% if intervenant.date_expiration_certificats < date_actuelle %}text-danger fw-bold{% else %}text-warning text-dark{% endif %}">
+                        Habilitations (Expire le {{ intervenant.date_expiration_certificats.strftime('%d/%m/%Y') }})
+                    </span>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+<!-- Tableau des dossiers -->
+<div class="card shadow-sm border-0" style="border-radius: 12px; border-top: 5px solid var(--primary-color);">
+    <div class="card-header bg-white border-bottom p-4">
+        <h5 class="mb-0 fw-bold" style="color: var(--primary-color);">Mes Dossiers d'Intervention</h5>
+    </div>
+    <div class="card-body p-0">
+        {% if dossiers %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Titre de l'intervention</th>
+                            <th>Zone</th>
+                            <th>Période</th>
+                            <th>Statut Achats</th>
+                            <th>Statut HSE</th>
+                            <th class="text-end pe-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for dossier in dossiers %}
+                        <tr>
+                            <td class="ps-4 fw-medium">{{ dossier.titre_intervention }}</td>
+                            <td>{{ dossier.zone_site }}</td>
+                            <td><small>{{ dossier.date_debut.strftime('%d/%m/%Y') }} - {{ dossier.date_fin.strftime('%d/%m/%Y') }}</small></td>
+                            
+                            <!-- Badges Statut Achats -->
+                            <td>
+                                {% if dossier.statut_achats == 'VALIDE' %}
+                                    <span class="badge bg-success">Validé</span>
+                                {% elif dossier.statut_achats == 'REJETE' %}
+                                    <span class="badge bg-danger">Rejeté</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">En attente</span>
+                                {% endif %}
+                            </td>
+
+                            <!-- Badges Statut HSE -->
+                            <td>
+                                {% if dossier.statut_hse == 'VALIDE' %}
+                                    <span class="badge bg-success">Validé</span>
+                                {% elif dossier.statut_hse == 'REJETE' %}
+                                    <span class="badge bg-danger">Rejeté</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">En attente</span>
+                                {% endif %}
+                            </td>
+
+                            <td class="text-end pe-4">
+                                <a href="{{ url_for('main.detail_dossier', dossier_id=dossier.id) }}" class="btn btn-sm btn-outline-primary" title="Voir les détails">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center p-5">
+                <div class="display-1 text-muted mb-3"><i class="bi bi-folder-x"></i></div>
+                <h5 class="text-muted">Aucun dossier d'intervention</h5>
+                <p class="text-muted mb-4">Vous n'avez pas encore créé de demande d'intervention sur site.</p>
+                <a href="{{ url_for('main.nouveau_dossier') }}" class="btn btn-outline-primary">
+                    Créer mon premier dossier
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

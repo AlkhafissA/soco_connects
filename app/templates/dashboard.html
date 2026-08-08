@@ -1,25 +1,30 @@
-{% extends "base.html" %} {% block title %}Tableau de Bord - MCAT{% endblock %} {% block extra_css %}
+{% extends "base.html" %} 
+
+{% block title %}Tableau de Bord - SOCO-CONNECT{% endblock %} 
+
+{% block extra_css %}
 <style>
-  /* KPI CARDS */
+  /* KPI CARDS INDUSTRIELLES */
   .card-stat {
-    border-radius: 16px;
+    border-radius: 12px;
     background: white;
     border: 1px solid var(--border-color);
+    border-left: 5px solid var(--primary-color);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
     transition: transform 0.3s ease;
-    position: relative;
-    overflow: hidden;
-    height: 100%; /* <-- Aligne toutes les cartes à la même hauteur */
+    height: 100%;
   }
   .card-stat:hover {
     transform: translateY(-5px);
-    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.05);
-    border-color: var(--primary-color);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.08);
   }
+  .card-stat.warning { border-left-color: #ff9800; }
+  .card-stat.success { border-left-color: #198754; }
+  
   .stat-icon {
     width: 48px;
     height: 48px;
-    border-radius: 12px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -29,67 +34,40 @@
   /* TABLEAU */
   .card-table {
     background: white;
-    border-radius: 16px;
+    border-radius: 12px;
     border: 1px solid var(--border-color);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    padding: 5px;
+    overflow: hidden;
   }
   .table thead th {
-    background-color: #f8f9fa;
-    color: #8898aa;
+    background-color: #1b2a47;
+    color: #ffffff;
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 1px;
-    border-bottom: 2px solid var(--border-color);
     padding: 15px 20px;
+    border: none;
   }
   .table tbody td {
-    padding: 20px;
+    padding: 15px 20px;
     vertical-align: middle;
     border-bottom: 1px solid var(--border-color);
   }
-  .table-hover tbody tr:hover {
-    background-color: #fafbff;
-  }
-  .company-avatar {
-    width: 40px;
-    height: 40px;
-    background-color: var(--primary-color);
-    color: white;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 0.9rem;
-    margin-right: 15px;
-    box-shadow: 0 4px 6px rgba(0, 51, 102, 0.2);
-  }
-
-  /* BADGES */
-  .badge-status {
-    padding: 8px 12px;
-    border-radius: 8px;
-    font-weight: 600;
+  
+  /* BADGES DE WORKFLOW */
+  .badge-workflow {
+    padding: 6px 10px;
+    border-radius: 6px;
     font-size: 0.7rem;
+    font-weight: 700;
     letter-spacing: 0.5px;
-    text-transform: uppercase;
+    display: inline-block;
+    min-width: 85px;
+    text-align: center;
   }
-  .bg-en-attente {
-    background-color: #fff3cd;
-    color: #ffc107;
-    border: 1px solid #ffeeba;
-  }
-  .bg-retenu {
-    background-color: #d1e7dd;
-    color: #198754;
-    border: 1px solid #badbcc;
-  }
-  .bg-refuse {
-    background-color: #f8d7da;
-    color: #dc3545;
-    border: 1px solid #f5c2c7;
-  }
+  .bg-attente { background-color: #fff3cd; color: #ff9800; border: 1px solid #ffeeba; }
+  .bg-valide { background-color: #d1e7dd; color: #198754; border: 1px solid #badbcc; }
+  .bg-rejete { background-color: #f8d7da; color: #dc3545; border: 1px solid #f5c2c7; }
 
   .btn-action {
     width: 32px;
@@ -98,219 +76,162 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: 8px;
+    border-radius: 6px;
     margin: 0 2px;
     transition: all 0.2s;
   }
   .btn-action:hover {
     transform: scale(1.1);
   }
-
-  /* SEARCH BAR STYLE */
-  /* 🟢 APRÈS */
-  .search-container {
-    position: relative;
-    width: 100%; /* Prend 100% sur mobile */
-  }
-
-  @media (min-width: 768px) {
-    .search-container {
-      max-width: 300px; /* Reprend sa taille max de 300px uniquement sur grand écran */
-    }
-  }
-  .search-input {
-    border-radius: 50px;
-    padding-left: 40px;
-    border: 1px solid var(--border-color);
-    background-color: white;
-    transition: all 0.3s;
-  }
-  .search-input:focus {
-    box-shadow: 0 0 0 4px rgba(0, 51, 102, 0.1);
-    border-color: var(--primary-color);
-  }
-  .search-icon {
-    position: absolute;
-    left: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #aaa;
-    pointer-events: none;
-  }
-  #session-timeout-badge {
-    left: 20px;
-    pointer-events: none;
-  }
 </style>
-{% endblock %} {% block content %}
+{% endblock %} 
+
+{% block content %}
 <div class="container-fluid px-4 mt-4">
+  
+  <!-- VUE ADMIN / ACHATS / HSE -->
+  {% if current_user.role in ['SUPERADMIN', 'ACHATS', 'HSE'] %}
+  
+  <!-- KPI SECTON -->
   <div class="row g-4 mb-4">
     <div class="col-xl-3 col-sm-6">
       <div class="card card-stat p-3">
         <div class="d-flex justify-content-between align-items-center">
           <div>
-            <p class="text-muted mb-0 small text-uppercase fw-bold">Total Dossiers</p>
-            <h4 class="mb-0 fw-bold text-dark mt-1">{{ candidats|length }}</h4>
+            <p class="text-muted mb-0 small text-uppercase fw-bold">Total Sous-traitants</p>
+            <h4 class="mb-0 fw-bold text-dark mt-1">{{ prestataires|length }}</h4>
           </div>
-          <div class="stat-icon bg-primary bg-opacity-10 text-primary">📂</div>
+          <div class="stat-icon bg-primary bg-opacity-10" style="color: var(--primary-color);">🏭</div>
         </div>
       </div>
     </div>
 
     <div class="col-xl-3 col-sm-6">
-      <div class="card card-stat p-3">
+      <div class="card card-stat warning p-3">
         <div class="d-flex justify-content-between align-items-center">
           <div>
-            <p class="text-muted mb-0 small text-uppercase fw-bold">En Attente</p>
-            <h4 class="mb-0 fw-bold text-warning mt-1">{{ candidats | selectattr("statut", "equalto", "En attente") | list | length }}</h4>
+            <p class="text-muted mb-0 small text-uppercase fw-bold">Attente Achats</p>
+            <h4 class="mb-0 fw-bold mt-1" style="color: #ff9800;">
+              {{ prestataires | selectattr("statut_achats", "equalto", "En attente") | list | length }}
+            </h4>
           </div>
-          <div class="stat-icon bg-warning bg-opacity-10 text-warning">⏳</div>
+          <div class="stat-icon" style="background-color: #fff3cd; color: #ff9800;">⏳</div>
         </div>
       </div>
     </div>
 
     <div class="col-xl-3 col-sm-6">
-      <div class="card card-stat p-3">
+      <div class="card card-stat warning p-3">
         <div class="d-flex justify-content-between align-items-center">
           <div>
-            <p class="text-muted mb-0 small text-uppercase fw-bold">Validés</p>
-            <h4 class="mb-0 fw-bold text-success mt-1">{{ candidats | selectattr("statut", "equalto", "Retenu") | list | length }}</h4>
+            <p class="text-muted mb-0 small text-uppercase fw-bold">Attente HSE</p>
+            <h4 class="mb-0 fw-bold mt-1" style="color: #ff9800;">
+              {{ prestataires | selectattr("statut_hse", "equalto", "En attente") | list | length }}
+            </h4>
+          </div>
+          <div class="stat-icon" style="background-color: #fff3cd; color: #ff9800;">🛡️</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-sm-6">
+      <div class="card card-stat success p-3">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <p class="text-muted mb-0 small text-uppercase fw-bold">Agréés (Global)</p>
+            <h4 class="mb-0 fw-bold text-success mt-1">
+              {{ prestataires | selectattr("statut_global", "equalto", "Approuvé") | list | length }}
+            </h4>
           </div>
           <div class="stat-icon bg-success bg-opacity-10 text-success">✅</div>
         </div>
       </div>
     </div>
-
-    <div class="col-xl-3 col-sm-6">
-      <a href="{{ url_for('main.afficher_formulaire') }}" class="text-decoration-none">
-        <div
-          class="card card-stat p-3 bg-primary text-white h-100 d-flex justify-content-center align-items-center border-0"
-          style="background: linear-gradient(135deg, #003366 0%, #0056b3 100%)"
-        >
-          <div class="text-center">
-            <span style="font-size: 1.5rem">+</span>
-            <span class="fw-bold ms-2">Nouveau Dossier</span>
-          </div>
-        </div>
-      </a>
-    </div>
   </div>
 
-  <div class="d-flex flex-column flex-md-row justify-content-between align-items-stretch align-items-md-center mb-3 gap-3">
+  <div class="d-flex justify-content-between align-items-end mb-3">
     <div>
-      <h5 class="fw-bold text-dark m-0">Demandes Récentes</h5>
-      <p class="text-muted small mb-0">Gestion des dossiers de demande d'agrément.</p>
+      <h5 class="fw-bold text-dark m-0">Registre des Prestataires</h5>
+      <p class="text-muted small mb-0">Gestion du workflow de validation multicritères.</p>
     </div>
-
-    <div class="search-container w-100 w-md-auto">
-      <span class="search-icon">🔍</span>
-      <input type="text" id="searchInput" class="form-control search-input" placeholder="Rechercher (Nom, NINEA...)" />
-    </div>
-    <a href="{{ url_for('main.exporter_excel') }}" class="btn btn-success btn-sm text-white fw-bold shadow-sm align-self-start align-self-md-center">
-      📊 Exporter vers Excel</a
-    >
   </div>
 
+  <!-- TABLEAU DES PRESTATAIRES -->
   <div class="card card-table">
     <div class="table-responsive">
-      <table class="table table-hover mb-0 align-middle" id="candidatsTable">
+      <table class="table table-hover mb-0 align-middle">
         <thead>
           <tr>
-            <th class="ps-4">Candidat</th>
-            <th>Localisation</th>
-            <th>Secteur</th>
-            <th>Contact</th>
-            <th class="text-center">Statut</th>
-            <th class="text-end pe-4">Actions</th>
+            <th class="ps-4">Entreprise</th>
+            <th>Domaine</th>
+            <th class="text-center">Validation Achats</th>
+            <th class="text-center">Validation HSE</th>
+            <th class="text-center">Statut Final</th>
+            <th class="text-end pe-4">Actions / Fichiers</th>
           </tr>
         </thead>
         <tbody>
-          {% for candidat in candidats %}
+          {% for p in prestataires %}
           <tr>
             <td class="ps-4">
-              <div class="d-flex align-items-center">
-                <span class="fw-bold text-muted me-3" style="font-size: 1.1rem">{{ loop.revindex }}</span>
-
-                <div class="company-avatar">{{ candidat.nom_entreprise[:2].upper() }}</div>
-                <div>
-                  <div class="fw-bold text-dark">{{ candidat.nom_entreprise }}</div>
-                  <div class="small text-muted">NINEA: {{ candidat.ninea }}</div>
-                  <div class="small text-muted" style="font-size: 0.7rem">📅 {{ candidat.date_enregistrement.strftime('%d/%m/%Y') }}</div>
-                </div>
-              </div>
+              <div class="fw-bold text-dark" style="font-size: 1rem;">{{ p.nom_entreprise }}</div>
+              <div class="small text-muted">NINEA: {{ p.ninea }}</div>
             </td>
             <td>
-              <div class="fw-semibold text-dark" style="font-size: 0.9rem">{{ candidat.ville }}</div>
-              <div class="text-muted small text-truncate" style="max-width: 150px">{{ candidat.adresse }}</div>
+              <span class="badge bg-light text-dark border fw-normal">{{ p.domaine_activite }}</span>
             </td>
-            <td>
-              <span class="badge bg-light text-dark border fw-normal text-wrap" style="max-width: 150px"> {{ candidat.position }} </span>
-            </td>
-            <td>
-              <div class="small fw-bold">{{ candidat.nom_proprietaire }}</div>
-              <div class="small text-muted">{{ candidat.telephone }}</div>
-            </td>
+            
+            <!-- STATUT ACHATS -->
             <td class="text-center">
-              {% if "attente" in candidat.statut %}
-              <span class="badge badge-status bg-en-attente">En attente</span>
-              {% elif "Retenu" in candidat.statut %}
-              <span class="badge badge-status bg-retenu">Validé</span>
+              {% if p.statut_achats == 'En attente' %}
+                <span class="badge-workflow bg-attente">En attente</span>
+              {% elif p.statut_achats == 'Validé' %}
+                <span class="badge-workflow bg-valide">Validé</span>
               {% else %}
-              <span class="badge badge-status bg-refuse">Refusé</span>
+                <span class="badge-workflow bg-rejete">Rejeté</span>
               {% endif %}
             </td>
+
+            <!-- STATUT HSE -->
+            <td class="text-center">
+              {% if p.statut_hse == 'En attente' %}
+                <span class="badge-workflow bg-attente">En attente</span>
+              {% elif p.statut_hse == 'Validé' %}
+                <span class="badge-workflow bg-valide">Validé</span>
+              {% else %}
+                <span class="badge-workflow bg-rejete">Rejeté</span>
+              {% endif %}
+            </td>
+
+            <!-- STATUT GLOBAL -->
+            <td class="text-center">
+              {% if p.statut_global == 'Approuvé' %}
+                <span class="badge bg-success shadow-sm px-3 py-2"><i class="bi bi-check-circle me-1"></i> Agréé</span>
+              {% else %}
+                <span class="badge bg-secondary bg-opacity-25 text-dark shadow-sm px-3 py-2"><i class="bi bi-hourglass-split me-1"></i> En cours</span>
+              {% endif %}
+            </td>
+
+            <!-- ACTIONS -->
             <td class="text-end pe-4">
-              <div class="d-flex justify-content-end align-items-center text-nowrap gap-1">
-                {% if current_user.role in ['superadmin', 'admin'] %} {% if "Retenu" not in candidat.statut %}
-                <button
-                  type="button"
-                  class="btn btn-action btn-light text-success shadow-sm"
-                  data-bs-toggle="modal"
-                  data-bs-target="#modalValidation"
-                  data-id="{{ candidat.id }}"
-                  data-nom="{{ candidat.nom_entreprise }}"
-                  title="Valider"
-                >
-                  ✓
+              <div class="d-flex justify-content-end gap-2">
+                <!-- Bouton pour voir les PDF (On créera cette route après) -->
+                <button class="btn btn-action btn-light border text-primary" title="Voir les documents PDF">
+                  <i class="bi bi-folder2-open"></i>
                 </button>
-                {% endif %} {% endif %} {% if candidat.fichier_scanne %}
-                <a
-                  href="{{ url_for('main.secure_download', folder='scans', filename=candidat.fichier_scanne) }}"
-                  target="_blank"
-                  class="btn btn-action btn-light text-success shadow-sm"
-                  title="Voir l'agrément signé"
-                  >👁️</a
-                >
-                {% else %} {% if current_user.role in ['superadmin', 'admin', 'agent'] %}
-                <button
-                  type="button"
-                  class="btn btn-action btn-light text-primary shadow-sm"
-                  data-bs-toggle="modal"
-                  data-bs-target="#modalScan{{ candidat.id }}"
-                  title="Uploader l'agrément signé"
-                >
-                  📎
+                
+                <!-- Bouton de validation Achats -->
+                {% if current_user.role in ['SUPERADMIN', 'ACHATS'] and p.statut_achats == 'En attente' %}
+                <button class="btn btn-action btn-success text-white shadow-sm" title="Valider Achats">
+                  <i class="bi bi-check-lg"></i>
                 </button>
-                {% endif %} {% endif %} {% if "Retenu" in candidat.statut %}
-                <a
-                  href="{{ url_for('main.telecharger_agrement_final', id=candidat.id) }}"
-                  class="btn btn-action btn-success text-white shadow-sm"
-                  title="Télécharger Final"
-                >
-                  📥
-                </a>
-                {% endif %} {% if current_user.role in ['superadmin', 'admin'] %} {% endif %} {% if current_user.role in ['superadmin', 'admin'] %}
-                <form action="{{ url_for('main.supprimer', id=candidat.id) }}" method="POST" style="display: inline">
-                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-                  <button
-                    type="submit"
-                    class="btn btn-action btn-light text-danger shadow-sm"
-                    title="Supprimer"
-                    onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet élément ? Cette action est irréversible.');"
-                  >
-                    <i class="bi bi-trash"></i>
-                  </button>
-                </form>
+                {% endif %}
+
+                <!-- Bouton de validation HSE -->
+                {% if current_user.role in ['SUPERADMIN', 'HSE'] and p.statut_hse == 'En attente' %}
+                <button class="btn btn-action btn-warning text-dark shadow-sm" title="Valider HSE">
+                  <i class="bi bi-shield-check"></i>
+                </button>
                 {% endif %}
               </div>
             </td>
@@ -318,8 +239,8 @@
           {% else %}
           <tr>
             <td colspan="6" class="text-center py-5">
-              <div class="text-muted mb-3" style="font-size: 3rem">📂</div>
-              <h6 class="text-muted">Aucun dossier enregistré</h6>
+              <div class="text-muted mb-3" style="font-size: 2.5rem"><i class="bi bi-inbox"></i></div>
+              <h6 class="text-muted">Aucun prestataire enregistré dans le système.</h6>
             </td>
           </tr>
           {% endfor %}
@@ -327,146 +248,32 @@
       </table>
     </div>
   </div>
-</div>
 
-<div class="modal fade" id="modalValidation" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content border-0 shadow">
-      <div class="modal-header bg-success text-white">
-        <h5 class="modal-title fw-bold">Valider l'Agrément</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <form action="{{ url_for('main.valider_agrement_final') }}" method="POST">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-        <div class="modal-body p-4">
-          <div class="text-center mb-4">
-            <h4 id="displayNomEntreprise" class="fw-bold text-success mb-0"></h4>
-            <small class="text-muted">Configuration de l'agrément final</small>
-          </div>
-          <input type="hidden" name="candidat_id" id="val_candidat_id" />
-          <div class="row g-3">
-            <div class="col-12">
-              <label class="form-label small fw-bold text-uppercase text-muted">Référence</label>
-              <div class="input-group">
-                <span class="input-group-text bg-white border-end-0">N°</span>
-                <input type="text" class="form-control border-start-0" name="ref_numero" placeholder="0001" required />
-                <input type="text" class="form-control" name="ref_suffixe" value="/SG/DAGE/ms" placeholder="/SG/DAGE/ms" />
-              </div>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label small fw-bold text-uppercase text-muted">Signataire</label>
-              <input type="text" class="form-control" name="titre_signataire" value="Le Directeur" />
-            </div>
-            <div class="col-md-6">
-              <label class="form-label small fw-bold text-uppercase text-muted">Date Signature</label>
-              <input type="date" class="form-control" name="date_signature" required />
-            </div>
-            <div class="col-12">
-              <label class="form-label small fw-bold text-uppercase text-muted">Réf. Lettre Candidat</label>
-              <input type="text" class="form-control" name="ref_lettre_candidat" placeholder="..." />
-            </div>
-          </div>
+  <!-- VUE PRESTATAIRE (Sous-traitant connecté) -->
+  {% else %}
+  <div class="row justify-content-center">
+    <div class="col-lg-8 mt-5 text-center">
+      <div class="mb-4" style="font-size: 4rem;">👋</div>
+      <h2 class="fw-bold" style="color: var(--primary-color);">Bienvenue sur SOCO-CONNECT</h2>
+      <p class="text-muted lead mb-5">Votre portail dédié aux sous-traitants de SOCOCIM Industries.</p>
+      
+      {% if prestataires %}
+        <div class="alert alert-success shadow-sm">
+          <h5><i class="bi bi-check-circle-fill me-2"></i> Votre dossier a été soumis avec succès !</h5>
+          <p class="mb-0 mt-2">Il est actuellement en cours de revue par nos départements Achats et HSE.</p>
         </div>
-        <div class="modal-footer bg-light border-0">
-          <button type="button" class="btn btn-link text-muted text-decoration-none" data-bs-dismiss="modal">Annuler</button>
-          <button type="submit" class="btn btn-success px-4 rounded-pill fw-bold">Valider et Envoyer</button>
+      {% else %}
+        <div class="card border-0 shadow-sm p-4">
+          <h5>Vous n'avez pas encore soumis votre dossier d'agrément.</h5>
+          <p class="text-muted mb-4">Pour commencer à travailler avec SOCOCIM, vous devez d'abord vous enrôler.</p>
+          <a href="{{ url_for('main.enrolement') }}" class="btn btn-primary btn-lg mx-auto" style="background-color: var(--primary-color);">
+            Démarrer mon enrôlement
+          </a>
         </div>
-      </form>
+      {% endif %}
     </div>
   </div>
+  {% endif %}
+
 </div>
-
-{% for candidat in candidats %} {% if not candidat.fichier_scanne %}
-<div class="modal fade" id="modalScan{{ candidat.id }}" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content shadow border-0">
-      <div class="modal-header bg-primary text-white">
-        <h5 class="modal-title fw-bold">Scan de l'agrément signé</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <form action="{{ url_for('main.uploader_scan') }}" method="POST" enctype="multipart/form-data">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-        <div class="modal-body p-4">
-          <p class="small text-muted">Uploadez la version scannée de l'agrément pour <strong>{{ candidat.nom_entreprise }}</strong>.</p>
-          <input type="hidden" name="type_doc" value="agrement" />
-          <input type="hidden" name="doc_id" value="{{ candidat.id }}" />
-          <input type="hidden" name="page_retour" value="main.tableau_de_bord" />
-          <input type="file" name="scan_file" class="form-control" accept=".pdf,.png,.jpg,.jpeg" required />
-        </div>
-        <div class="modal-footer bg-light border-0">
-          <button type="button" class="btn btn-link text-muted text-decoration-none" data-bs-dismiss="modal">Annuler</button>
-          <button type="submit" class="btn btn-primary px-4 rounded-pill fw-bold">Enregistrer le Scan</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-{% endif %} {% endfor %}
-
-<div id="session-timeout-badge" class="fixed-bottom p-3" style="z-index: 1050; width: fit-content">
-  <div class="badge bg-dark border border-secondary shadow-sm p-2 opacity-75">
-    <i class="bi bi-clock text-warning"></i>
-    <span id="session-timer">30:00</span>
-  </div>
-</div>
-{% endblock %} {% block scripts %}
-<script>
-  // 1. Gestion du Modal
-  var modalValidation = document.getElementById("modalValidation");
-  modalValidation.addEventListener("show.bs.modal", function (event) {
-    var button = event.relatedTarget;
-    var id = button.getAttribute("data-id");
-    var nom = button.getAttribute("data-nom");
-    var inputId = modalValidation.querySelector("#val_candidat_id");
-    var textNom = modalValidation.querySelector("#displayNomEntreprise");
-    if (inputId) inputId.value = id;
-    if (textNom) textNom.textContent = nom;
-  });
-
-  // 2. Gestion de la Recherche
-  document.getElementById("searchInput").addEventListener("keyup", function () {
-    var filter = this.value.toLowerCase();
-    var rows = document.querySelectorAll("#candidatsTable tbody tr");
-    rows.forEach(function (row) {
-      var text = row.textContent.toLowerCase();
-      if (text.includes(filter)) {
-        row.style.display = "";
-      } else {
-        row.style.display = "none";
-      }
-    });
-  });
-
-  // 3. Gestion du Timer
-  (function () {
-    let timeLeft = 30 * 60;
-    const display = document.querySelector("#session-timer");
-    const badge = document.querySelector("#session-timeout-badge .badge");
-
-    const timer = setInterval(function () {
-      let minutes = Math.floor(timeLeft / 60);
-      let seconds = timeLeft % 60;
-
-      minutes = minutes < 10 ? "0" + minutes : minutes;
-      seconds = seconds < 10 ? "0" + seconds : seconds;
-
-      display.textContent = minutes + ":" + seconds;
-
-      if (timeLeft <= 120) {
-        badge.classList.replace("bg-dark", "bg-danger");
-        badge.classList.remove("opacity-75");
-      } else if (timeLeft <= 300) {
-        badge.classList.replace("bg-dark", "bg-warning");
-        badge.classList.remove("text-white");
-        badge.classList.add("text-dark");
-      }
-
-      if (timeLeft <= 0) {
-        clearInterval(timer);
-        window.location.href = "{{ url_for('main.login') }}";
-      }
-      timeLeft--;
-    }, 1000);
-  })();
-</script>
 {% endblock %}

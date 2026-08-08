@@ -1,186 +1,245 @@
-<!doctype html>
-<html lang="fr">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Connexion - MCAT</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <style>
-      body {
-        background: linear-gradient(135deg, #003366 0%, #0066cc 100%);
+{% extends "base.html" %}
+
+{% block title %}Connexion - SOCO-CONNECT{% endblock %}
+
+{% block content %}
+<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+
+<style>
+    /* Masquage de la navbar et réinitialisation des marges du body */
+    .navbar { display: none !important; }
+    
+    body {
+        margin: 0 !important;
+        padding: 0 !important;
+        background-color: #004619; /* Fond de secours */
+        overflow-x: hidden;
+    }
+
+    .text-sococim { color: #007A33 !important; }
+    .btn-sococim { background-color: #007A33; color: white; border: none; }
+    .btn-sococim:hover { background-color: #005c26; color: white; }
+
+    /* Arrière-plan plein écran avec dégradé */
+    /* 1. L'arrière-plan passe à z-index: 0 */
+    .full-screen-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
         height: 100vh;
+        background: linear-gradient(135deg, rgba(0, 122, 51, 0.95) 0%, rgba(0, 70, 25, 0.98) 100%);
+        z-index: 0; 
+    }
+
+    /* 2. Les particules passent au-dessus du fond, z-index: 1 */
+    #particles-js { 
+        position: fixed; 
+        top: 0; 
+        left: 0; 
+        width: 100%; 
+        height: 100%; 
+        z-index: 1; 
+    }
+
+    /* 3. Le wrapper du formulaire passe tout devant, z-index: 2 */
+    .login-wrapper {
+        position: relative;
+        min-height: 100vh;
         display: flex;
-        flex-direction: column;
-        align-items: center;
         justify-content: center;
-        font-family: "Segoe UI", sans-serif;
-        /* 🛠️ AJOUT : Un petit padding pour que la carte ne touche jamais les bords sur mobile */
-        padding: 0 15px;
-      }
-      .card-login {
-        border: none;
-        border-radius: 12px;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-        overflow: hidden;
-        width: 100%;
-        max-width: 400px;
-      }
-      .card-header {
-        background-color: #fff;
-        color: #003366;
-        text-align: center;
-        padding: 30px 20px 10px 20px;
-        border-bottom: none;
-      }
-
-      /* --- STYLE POUR LE DRAPEAU --- */
-      .drapeau-container {
-        display: flex;
-        width: 100%;
-        height: 12px;
-      }
-      .bande {
-        flex: 1;
-        height: 100%;
-      }
-      .vert {
-        background-color: #00853f;
-      }
-      .rouge {
-        background-color: #e31b23;
-      }
-      .jaune {
-        background-color: #fdef42;
-        display: flex;
         align-items: center;
-        justify-content: center;
-        line-height: 0;
-      }
-      .etoile {
-        color: #00853f;
-        font-size: 10px;
-        font-weight: bold;
-      }
-      /* ------------------------------------- */
+        padding: 15px;
+        z-index: 2; 
+        /* LAISSER PASSER POUR LES CLICS À TRAVERS L'ESPACE VIDE */
+        pointer-events: none;
+    }
 
-      .form-control {
-        padding: 12px;
-        background-color: #f0f4f8;
-        border: 1px solid #dce1e6;
-      }
-      .form-control:focus {
-        background-color: #fff;
-        box-shadow: 0 0 0 3px rgba(0, 51, 102, 0.1);
-        border-color: #003366;
-      }
-      .btn-login {
-        background-color: #003366;
-        border: none;
-        padding: 12px;
-        font-weight: 600;
-        letter-spacing: 0.5px;
-        transition: all 0.3s;
-      }
-      .btn-login:hover {
-        background-color: #002244;
-        transform: translateY(-2px);
-      }
-      .footer-text {
-        margin-top: 20px;
-        font-size: 0.85rem;
-        color: rgba(255, 255, 255, 0.7);
-        text-align: center; /* 🛠️ AJOUT : Centrer le texte sur mobile */
-      }
-    </style>
-  </head>
-  <body>
-    <div class="card card-login">
-      <div class="drapeau-container">
-        <div class="bande vert"></div>
-        <div class="bande jaune">
-          <span class="etoile">★</span>
-        </div>
-        <div class="bande rouge"></div>
-      </div>
-      <div class="card-header">
-        <h6 class="mb-1 text-uppercase fw-bold text-muted small" style="letter-spacing: 1px">République du Sénégal</h6>
-        <div class="mt-2 mb-2">
-          <span style="font-size: 3.5rem">🏛️</span>
-        </div>
-        <h4 class="mt-2 fw-bold" style="color: #003366">Espace MCAT</h4>
-        <p class="mb-0 small text-muted">Authentification sécurisée</p>
-      </div>
+    /* Carte du formulaire avec animation de flottement */
+    .login-card {
+        background: rgba(255, 255, 255, 0.98);
+        border-radius: 15px;
+        padding: 25px 30px; 
+        width: 100%;
+        max-width: 420px; 
+        box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+        animation: float 4s ease-in-out infinite;
+        transition: transform 0.3s ease;
+        /* RÉACTIVATION DES CLICS POUR LE FORMULAIRE SEUL */
+        pointer-events: auto;
+    }
 
-      <div class="card-body p-4 pt-2 bg-white">
-        {% with messages = get_flashed_messages() %} {% if messages %}
-        <div class="alert alert-danger py-2 text-center small">{{ messages[0] }}</div>
-        {% endif %} {% endwith %} {% if block_time %}
-        <div class="text-center py-4">
-          <h5 class="text-muted mb-3">Réessayez dans</h5>
-          <div class="display-4 fw-bold text-danger mb-3" id="compte-a-rebours">--:--</div>
-          <div class="spinner-border text-danger spinner-border-sm" role="status"></div>
-          <p class="text-muted small mt-2">Votre adresse IP a été temporairement suspendue.</p>
+    /* ICI ON Met l'animation en pause au survol */
+    .login-card:hover {
+        animation-play-state: paused;
+    }
+
+    @keyframes float {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); } /* Flottement plus subtil */
+        100% { transform: translateY(0px); }
+    }
+
+    /* ON FORCE LES MESSAGES D'ALERTE AU PREMIER PLAN */
+    .alert {
+        position: relative !important;
+        z-index: 9999 !important;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+</style>
+
+<!-- Arrière-plan et particules -->
+<div class="full-screen-bg"></div>
+<div id="particles-js"></div>
+
+<!-- Formulaire centré -->
+<div class="login-wrapper">
+    <div class="login-card">
+        
+        <!-- En-tête du formulaire -->
+        <div class="text-center mb-3">
+            <!-- Icône plus petite et marges réduites -->
+            <div class="d-inline-block bg-light p-2 rounded-circle mb-2 shadow-sm border border-success border-opacity-25">
+                <i class="bi bi-shield-check text-sococim fs-3"></i>
+            </div>
+            <h4 class="fw-bold text-dark mb-1">SOCO-CONNECT</h4>
+            <p class="text-muted small mb-0" style="font-size: 0.8rem;">Espace d'authentification sécurisé</p>
+        </div>
+
+       <!-- MESSAGES FLASH -->
+        {% with messages = get_flashed_messages(with_categories=true) %} 
+          {% if messages %}
+            {% for category, message in messages %}
+                <!-- Gère les couleurs dynamiquement selon le type de message (success, danger, warning) -->
+                <div class="alert alert-{{ category if category != 'message' else 'warning' }} py-2 text-center small fw-bold mb-3 rounded-3" style="position: relative; z-index: 9999;">
+                    {% if category == 'success' %}
+                        <i class="bi bi-check-circle-fill me-1"></i>
+                    {% elif category == 'danger' %}
+                        <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                    {% endif %}
+                    {{ message }}
+                </div>
+            {% endfor %}
+          {% endif %} 
+        {% endwith %}
+
+        <!-- BLOCAGE TEMPORAIRE ANTI BRUTE-FORCE -->
+        {% if block_time %}
+        <div class="text-center py-3">
+            <h6 class="text-muted mb-2">Réessayez dans</h6>
+            <div class="display-5 fw-bold text-danger mb-2" id="compte-a-rebours" data-block-time="{{ block_time }}">--:--</div>
+            <div class="spinner-border text-danger spinner-border-sm" role="status"></div>
+            <p class="text-muted small mt-2" style="font-size: 0.75rem;">Mesure anti-intrusion : Votre adresse IP a été temporairement suspendue.</p>
         </div>
 
         <script>
-          // Récupération du temps sécurisé depuis le serveur Python
-          let tempsRestant = {{ block_time }};
-          const affichage = document.getElementById('compte-a-rebours');
+            const affichage = document.getElementById('compte-a-rebours');
+            let tempsRestant = parseInt(affichage.dataset.blockTime, 10);
 
-          const timer = setInterval(function () {
-            tempsRestant--;
+            const timer = setInterval(function () {
+                tempsRestant--;
+                let minutes = Math.floor(tempsRestant / 60);
+                let secondes = tempsRestant % 60;
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                secondes = secondes < 10 ? "0" + secondes : secondes;
+                affichage.textContent = minutes + ":" + secondes;
 
-            // Calcul des minutes et secondes
-            let minutes = Math.floor(tempsRestant / 60);
-            let secondes = tempsRestant % 60;
-
-            // Formatage avec un "0" devant si c'est plus petit que 10
-            minutes = minutes < 10 ? "0" + minutes : minutes;
-            secondes = secondes < 10 ? "0" + secondes : secondes;
-
-            affichage.textContent = minutes + ":" + secondes;
-
-            // Quand le temps est écoulé
-            if (tempsRestant <= 0) {
-              clearInterval(timer);
-              affichage.textContent = "00:00";
-              // On recharge la page pour réafficher le formulaire
-              window.location.reload();
-            }
-          }, 1000);
+                if (tempsRestant <= 0) {
+                    clearInterval(timer);
+                    affichage.textContent = "00:00";
+                    window.location.reload();
+                }
+            }, 1000);
         </script>
 
         {% else %}
+
+        <!-- FORMULAIRE DE CONNEXION -->
         <form action="{{ url_for('main.login') }}" method="POST">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-          <div class="mb-3">
-            <label class="form-label text-secondary small fw-bold">IDENTIFIANT</label>
-            <input type="text" name="username" class="form-control" placeholder="Utilisateur" required autocomplete="username" />
-          </div>
-          <div class="mb-4">
-            <label class="form-label text-secondary small fw-bold">MOT DE PASSE</label>
-            <input type="password" name="password" class="form-control" placeholder="••••••••" required autocomplete="current-password" />
-          </div>
-          <div class="d-grid">
-            <button type="submit" class="btn btn-primary btn-login text-uppercase shadow-sm">Se Connecter</button>
-          </div>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            
+            <div class="mb-3">
+                <label class="form-label fw-bold text-muted mb-1" style="font-size: 0.75rem;">IDENTIFIANT</label>
+                <!-- Retrait de input-group-lg -->
+                <div class="input-group shadow-sm">
+                    <span class="input-group-text bg-white border-end-0 text-sococim py-1"><i class="bi bi-person"></i></span>
+                    <input type="text" name="username" class="form-control border-start-0 ps-0 py-2" placeholder="Matricule ou Utilisateur" required autocomplete="username" />
+                </div>
+            </div>
 
-          <div class="hp-container" style="display: none !important" aria-hidden="true">
-            <input type="text" name="confirm_email_address" tabindex="-1" autocomplete="off" />
-          </div>
+            <div class="mb-3">
+                <label class="form-label fw-bold text-muted mb-1" style="font-size: 0.75rem;">MOT DE PASSE</label>
+                <!-- Retrait de input-group-lg -->
+                <div class="input-group shadow-sm">
+                    <span class="input-group-text bg-white border-end-0 text-sococim py-1"><i class="bi bi-lock"></i></span>
+                    <input type="password" name="password" class="form-control border-start-0 ps-0 py-2" placeholder="••••••••" required autocomplete="current-password" />
+                </div>
+            </div>
+
+            <!-- Honeypot invisible -->
+            <div class="hp-container" style="display: none !important" aria-hidden="true">
+                <input type="text" name="confirm_email_address" tabindex="-1" autocomplete="off" />
+            </div>
+
+            <div class="d-grid mt-3">
+                <!-- Retrait du btn-lg, ajout d'un padding vertical modéré -->
+                <button type="submit" class="btn btn-sococim shadow fw-bold py-2">
+                    <i class="bi bi-box-arrow-in-right me-1"></i> Se Connecter
+                </button>
+            </div>
         </form>
+
+        <!-- BOUTON D'INSCRIPTION INTERNE -->
+        <div class="position-relative my-3 text-center">
+            <hr class="text-muted opacity-25">
+            <span class="position-absolute top-50 start-50 translate-middle bg-white px-2 text-muted fw-bold" style="font-size: 0.7rem;">NOUVEAU ?</span>
+        </div>
+
+        <div class="text-center p-2 rounded" style="background-color: #f8f9fa; border: 1px dashed #dee2e6;">
+            <p class="text-muted mb-2" style="font-size: 0.75rem;">Votre entreprise n'a pas de compte ?</p>
+            <a href="{{ url_for('main.demande_acces') }}" class="btn btn-outline-success btn-sm fw-bold w-100 py-1">
+                <i class="bi bi-building-add me-1"></i> Demander un accès
+            </a>
+        </div>
+
         {% endif %}
-      </div>
+
     </div>
+</div>
 
-    <div class="footer-text">&copy; 2025 Ministère de la Culture de l'Artisanat et du Tourisme</div>
+<script>
+    particlesJS("particles-js", {
+        "particles": {
+            "number": { "value": 70, "density": { "enable": true, "value_area": 800 } },
+            "color": { "value": ["#ffffff", "#8fe8a4"] },
+            "shape": { "type": "circle" },
+            "opacity": { "value": 0.6 },
+            "size": { "value": 3.5, "random": true },
+            "line_linked": { "enable": true, "distance": 150, "color": "#ffffff", "opacity": 0.25, "width": 1 },
+            "move": { "enable": true, "speed": 1.5, "out_mode": "bounce" }
+        },
+        "interactivity": {
+            "detect_on": "canvas",
+            "events": { 
+                "onhover": { "enable": true, "mode": "grab" },
+                /* RÉACTIVATION DU CLIC ICI */
+                "onclick": { "enable": true, "mode": "push" } 
+            },
+            "modes": {
+                "grab": { "distance": 180, "line_linked": { "opacity": 0.8 } },
+                /* CONFIGURATION DU NOMBRE DE PARTICULES CRÉÉES AU CLIC */
+                "push": { "particles_nb": 3 }
+            }
+        },
+        "retina_detect": true
+    });
 
-    <script>
-      document.querySelector("form").addEventListener("submit", function () {
-        const btn = this.querySelector(".btn-login");
-        btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Vérification...';
-      });
-    </script>
-  </body>
-</html>
+    document.querySelector("form")?.addEventListener("submit", function () {
+        const btn = this.querySelector("button[type='submit']");
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Authentification...';
+        }
+    });
+</script>
+{% endblock %}

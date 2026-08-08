@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}Modifier l'intervenant - SOCO-CONNECT{% endblock %}
+
+{% block content %}
+<div class="mb-4 d-flex justify-content-between align-items-center">
+    <div>
+        <h3 class="fw-bold m-0" style="color: var(--primary-color);">Modifier un intervenant</h3>
+        <p class="text-muted m-0">Dossier : {{ dossier.titre_intervention }} | Intervenant : {{ intervenant.prenom }} {{ intervenant.nom }}</p>
+    </div>
+    <!-- APRÈS : -->
+    <a href="{{ url_for('main.detail_dossier', dossier_id=dossier.id) }}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left"></i> Annuler et revenir au dossier
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0" style="border-radius: 12px; background-color: #f8f9fa;">
+            <div class="card-body p-4">
+                
+                <!-- Information sur la règle métier HSE -->
+                <div class="alert alert-info d-flex align-items-center mb-4" role="alert">
+                    <i class="bi bi-info-circle-fill fs-4 me-3"></i>
+                    <div>
+                        <strong>Information :</strong> Toute modification apportée aux informations ou documents remettra automatiquement le statut de l'intervenant en <strong>"En attente"</strong> pour re-validation par le service HSE.
+                    </div>
+                </div>
+
+                <form method="POST" enctype="multipart/form-data">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            {{ form.prenom.label(class="form-label small fw-bold") }}
+                            {{ form.prenom(class="form-control") }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.nom.label(class="form-label small fw-bold") }}
+                            {{ form.nom(class="form-control") }}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.numero_cni.label(class="form-label small fw-bold") }}
+                        {{ form.numero_cni(class="form-control") }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.fichier_cni.label(class="form-label small text-danger fw-bold") }}
+                        {{ form.fichier_cni(class="form-control", accept=".pdf") }}
+                        <small class="form-text text-muted">Laissez vide si vous ne souhaitez pas remplacer le fichier CNI actuel.</small>
+                    </div>
+
+                    <!-- Date expiration CNI -->
+                    <div class="mb-3 border-start border-danger border-3 ps-3 py-1">
+                        {{ form.date_expiration_cni.label(class="form-label small text-danger fw-bold mb-1") }}
+                        {{ form.date_expiration_cni(class="form-control", type="date") }}
+                    </div>
+
+                    <hr class="my-4">
+                    
+                    <label class="form-label small fw-bold text-primary">Habilitations (Cochez si applicable)</label>
+                    <div class="mb-3 px-2">
+                        <div class="form-check mb-2">
+                            {{ form.hab_travail_hauteur(class="form-check-input") }}
+                            {{ form.hab_travail_hauteur.label(class="form-check-label small") }}
+                        </div>
+                        <div class="form-check mb-2">
+                            {{ form.hab_espace_confine(class="form-check-input") }}
+                            {{ form.hab_espace_confine.label(class="form-check-label small") }}
+                        </div>
+                        <div class="form-check mb-2">
+                            {{ form.hab_risque_electrique(class="form-check-input") }}
+                            {{ form.hab_risque_electrique.label(class="form-check-label small") }}
+                        </div>
+                        <div class="form-check mb-2">
+                            {{ form.hab_conduite_engins(class="form-check-input") }}
+                            {{ form.hab_conduite_engins.label(class="form-check-label small") }}
+                        </div>
+                        <div class="form-check mb-2">
+                            {{ form.hab_incendie(class="form-check-input") }}
+                            {{ form.hab_incendie.label(class="form-check-label small") }}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.fichier_habilitations.label(class="form-label small fw-bold") }}
+                        {{ form.fichier_habilitations(class="form-control", accept=".pdf") }}
+                        <small class="form-text text-muted">Laissez vide si vous ne souhaitez pas remplacer le document d'habilitations actuel.</small>
+                    </div>
+
+                    <!-- Date expiration Habilitations -->
+                    <div class="mb-4 border-start border-warning border-3 ps-3 py-1">
+                        {{ form.date_expiration_habilitations.label(class="form-label small text-warning text-dark fw-bold mb-1") }}
+                        {{ form.date_expiration_habilitations(class="form-control", type="date") }}
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <!-- APRÈS : -->
+                        <a href="{{ url_for('main.detail_dossier', dossier_id=dossier.id) }}" class="btn btn-secondary">
+                            Annuler
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle me-1"></i> Enregistrer les modifications
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

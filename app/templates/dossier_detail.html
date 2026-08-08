@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block title %}Détails du Dossier - SOCO-CONNECT{% endblock %}
+
+{% block content %}
+<div class="mb-4 d-flex justify-content-between align-items-center">
+    <div>
+        <h3 class="fw-bold m-0" style="color: var(--primary-color);">Dossier : {{ dossier.titre_intervention }}</h3>
+        <p class="text-muted m-0">Zone : {{ dossier.zone_site }} | Du {{ dossier.date_debut.strftime('%d/%m/%Y') }} au {{ dossier.date_fin.strftime('%d/%m/%Y') }}</p>
+    </div>
+    <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left"></i> Retour au tableau de bord
+    </a>
+</div>
+
+<div class="row">
+    <!-- COLONNE GAUCHE : Liste des intervenants -->
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0 mb-4" style="border-radius: 12px; border-top: 5px solid var(--primary-color);">
+            <div class="card-header bg-white border-bottom p-3">
+                <h5 class="mb-0 fw-bold" style="color: var(--primary-color);">
+                    <i class="bi bi-people-fill me-2"></i> Équipe d'intervention ({{ liaisons|length }})
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                {% if liaisons %}
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Nom complet</th>
+                            <th>CNI</th>
+                            <th>Statut HSE</th>
+                            <th>Documents</th>
+                            {% if current_user.role == 'PRESTATAIRE' %}
+                            <th class="text-end pe-4">Actions</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for liaison in liaisons %}
+                        {% set worker = liaison.intervenant %}
+                        <tr>
+                            <td class="ps-4 fw-medium">{{ worker.prenom }} {{ worker.nom }}</td>
+                            <td>{{ worker.numero_piece }}</td>
+                            <td>
+                                <!-- Affichage dynamique du statut individuel HSE -->
+                                {% if liaison.statut_hse == 'VALIDE' %}
+                                    <span class="badge bg-success"><i class="bi bi-check-circle"></i> Validé</span>
+                                {% elif liaison.statut_hse == 'REJETE' %}
+                                    <span class="badge bg-danger"><i class="bi bi-x-circle"></i> Rejeté</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split"></i> En attente</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary" title="CNI"><i class="bi bi-person-vcard"></i> CNI</span>
+                                {% if worker.fichier_certificats %}
+                                <span class="badge bg-info" title="Certificats"><i class="bi bi-award"></i> Hab.</span>
+                                {% endif %}
+                            </td>
+                            
+                            <!-- COLONNE ACTIONS (PRESTATAIRE SEULEMENT) -->
+                            {% if current_user.role == 'PRESTATAIRE' %}
+                            <td class="text-end pe-4">
+                                <!-- Bouton Modifier -->
+                                <a href="{{ url_for('main.modifier_intervenant', dossier_id=dossier.id, intervenant_id=worker.id) }}" 
+                                class="btn btn-sm btn-outline-primary me-1" 
+                                title="Modifier les infos">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+
+                                <!-- Bouton Retirer du dossier -->
+                                <form action="{{ url_for('main.retirer_intervenant', dossier_id=dossier.id, intervenant_id=worker.id) }}" 
+                                    method="POST" 
+                                    class="d-inline" 
+                                    onsubmit="return confirm('Voulez-vous vraiment retirer {{ worker.prenom }} {{ worker.nom }} de ce dossier ?');">
+                                    <!-- AJOUT ICI : Jeton de sécurité CSRF -->
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                    
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Retirer du dossier">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </button>
+                                </form>
+                            </td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="text-center p-4">
+                    <p class="text-muted mb-0">Aucun travailleur n'a encore été ajouté à ce dossier.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- COLONNE DROITE : Formulaire d'ajout -->
+    <div class="col-lg-4">
+        <div class="card shadow-sm border-0" style="border-radius: 12px; background-color: #f8f9fa;">
+            <div class="card-body p-4">
+                <h6 class="fw-bold border-bottom pb-2 mb-3" style="color: var(--primary-color);">
+                    <i class="bi bi-person-plus-fill me-2"></i> Ajouter un travailleur
+                </h6>
+                
+                <form method="POST" enctype="multipart/form-data">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="row g-2 mb-2">
+                        <div class="col-6">
+                            {{ form.prenom.label(class="form-label small fw-bold") }}
+                            {{ form.prenom(class="form-control form-control-sm") }}
+                        </div>
+                        <div class="col-6">
+                            {{ form.nom.label(class="form-label small fw-bold") }}
+                            {{ form.nom(class="form-control form-control-sm") }}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-2">
+                        {{ form.numero_cni.label(class="form-label small fw-bold") }}
+                        {{ form.numero_cni(class="form-control form-control-sm") }}
+                    </div>
+
+                    <div class="mb-2">
+                        {{ form.fichier_cni.label(class="form-label small text-danger fw-bold") }}
+                        {{ form.fichier_cni(class="form-control form-control-sm", accept=".pdf") }}
+                    </div>
+
+                    <!-- NOUVEAU : Date expiration CNI -->
+                    <div class="mb-3 border-start border-danger border-3 ps-2">
+                        {{ form.date_expiration_cni.label(class="form-label small text-danger fw-bold mb-1") }}
+                        {{ form.date_expiration_cni(class="form-control form-control-sm", type="date") }}
+                    </div>
+
+                    <hr>
+                    <label class="form-label small fw-bold text-primary">Habilitations (Cochez si applicable)</label>
+                    <div class="mb-3 px-2">
+                        <div class="form-check mb-1">
+                            {{ form.hab_travail_hauteur(class="form-check-input") }}
+                            {{ form.hab_travail_hauteur.label(class="form-check-label small") }}
+                        </div>
+                        <div class="form-check mb-1">
+                            {{ form.hab_espace_confine(class="form-check-input") }}
+                            {{ form.hab_espace_confine.label(class="form-check-label small") }}
+                        </div>
+                        <div class="form-check mb-1">
+                            {{ form.hab_risque_electrique(class="form-check-input") }}
+                            {{ form.hab_risque_electrique.label(class="form-check-label small") }}
+                        </div>
+                        <div class="form-check mb-1">
+                            {{ form.hab_conduite_engins(class="form-check-input") }}
+                            {{ form.hab_conduite_engins.label(class="form-check-label small") }}
+                        </div>
+                        <div class="form-check mb-1">
+                            {{ form.hab_incendie(class="form-check-input") }}
+                            {{ form.hab_incendie.label(class="form-check-label small") }}
+                        </div>
+                    </div>
+
+                    <div class="mb-2">
+                        {{ form.fichier_habilitations.label(class="form-label small fw-bold") }}
+                        {{ form.fichier_habilitations(class="form-control form-control-sm", accept=".pdf") }}
+                    </div>
+
+                    <!-- NOUVEAU : Date expiration Habilitations -->
+                    <div class="mb-4 border-start border-warning border-3 ps-2">
+                        {{ form.date_expiration_habilitations.label(class="form-label small text-warning text-dark fw-bold mb-1") }}
+                        {{ form.date_expiration_habilitations(class="form-control form-control-sm", type="date") }}
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <i class="bi bi-plus-circle"></i> Ajouter
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
